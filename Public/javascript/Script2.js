@@ -9,19 +9,23 @@ console.log(user);
 for (var i = 0; i < user.length; i++) {
   user[i].addEventListener("click", function (e) {
     $("#ourChat").fadeIn(1000);
+    chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
 $("#chatClick").click(function () {
   $("#chatHide").slideToggle(1000);
+  chatBox.scrollTop = chatBox.scrollHeight;
 });
 $("#contactClick").click(function () {
   $("#contactHide").fadeToggle(1000);
+  chatBox.scrollTop = chatBox.scrollHeight;
   //   $("#chatHide").tog(1000);
 
   $("#chat-id").toggleClass("full");
 });
 
 $("#setting").click(function () {
+  chatBox.scrollTop = chatBox.scrollHeight;
   $("#sitt").fadeToggle(1000);
 });
 let chatId = '';
@@ -52,6 +56,7 @@ $(".contact").click((e) => {
                      </div>`;
     }
     chatBox.innerHTML=msgs
+    chatBox.scrollTop = chatBox.scrollHeight;
 
   });
 
@@ -85,6 +90,8 @@ socket.on('chatMsg', (msg,chatId,senderId)=>{
   <p> ${msg}<br> <span>9:48</span></p>
  </div> `
   chatBox.innerHTML+=msgHtml
+  chatBox.scrollTop = chatBox.scrollHeight;
+
 
   
   msg=''

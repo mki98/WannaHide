@@ -9,7 +9,6 @@ var email = document.getElementById('email')
 var password = document.getElementById('password1')
 var passwordConfirm = document.getElementById('password2')
 var confirmpass = document.getElementById('confirmpass')
-var accountForm =document.getElementById('accountForm')
 signinBtn.addEventListener('click' , function (e) {
     e.preventDefault()
     nameField.style.maxHeight='0';
@@ -45,6 +44,7 @@ signupBtn.addEventListener('click' , function (e) {
     
     e.preventDefault()
     nameField.style.maxHeight='60px';
+    confirmpass.style.maxHeight='60px';
     title.innerHTML=`Sign Up`;
     signupBtn.classList.remove('disable');
     signinBtn.classList.add('disable');
