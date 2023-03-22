@@ -1,0 +1,10 @@
+<% if (locals.confRes?.status!='Success'){ %>
+    <h1 style="color: red;"><%= locals.confRes?.message %></h1>
+   
+    <% } else{ %>
+        <h1><%= locals.confRes.message %></h1>
+        <% } %>
+
+<script>window.setTimeout(function(){
+            location.replace('http://localhost:5000/accounts')
+        },1000)</script>

@@ -1,0 +1,97 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+:root{
+    --color:#288af3;
+}
+.Home_page{
+    height: 100vh;
+    background-image:url(../img/cyber-security-concept-shield-with-keyhole-icon-digital-data-background.jpg);
+    background-position: center center;
+    background-size: cover;
+    position: relative;
+}
+.nav{
+    width: 90%;
+    margin: auto;
+    padding: 20px 0;
+}
+.Home_page .logo {
+    color: var(--color);
+    font-size: 32px;
+    letter-spacing: 2px;
+}
+span{
+
+    color: white;
+}
+/* .Home_page .Login{
+    text-transform: capitalize;
+    text-decoration: none;
+    background-color: var(--color);
+    padding: 10px 30px;
+    font-size: 14px;
+    border-radius: 30px;
+    color: #000;
+} */
+ 
+
+.Home_contant{
+    width: 90%;
+    margin: auto;
+    height: 80vh;
+}
+
+.Home_contant .text h1{
+    color: var(--color);
+    font-weight: 800;
+    font-size: 45px;
+    letter-spacing: 15px;
+
+}
+.Home_contant .text p{
+    color: white;
+    text-transform: capitalize;
+    font-size: 18px;
+    margin-bottom: 30px;
+    word-spacing: 3px;
+    letter-spacing: 1px;
+    padding: 25px 0px;
+}
+.btn_learn{
+    margin: 0px 10px;
+    border: 2px solid var(--color);
+    padding: 13px 35px;
+    letter-spacing: 1px;
+    color: #000;
+    border-radius: 30px;
+    background-color: var(--color);
+    text-decoration: none;
+}
+.btn_learn:hover{
+    border: 2px solid var(--color);
+    color: var(--color);
+    background-color: white;
+    transition: 0.5s;
+    cursor: pointer;
+}
+.btn_sign{
+    margin: 0px 10px;
+    border: 2px solid var(--color);
+    padding: 13px 35px;
+    letter-spacing: 1px;
+    color: var(--color);
+    border-radius: 30px;
+    background-color: white;
+    text-decoration: none;
+}
+.btn_sign:hover{
+    border: var(--color) 2px solid;
+    color: #000;
+    background-color: var(--color);
+    transition: 0.5s;
+    cursor: pointer;
+}
