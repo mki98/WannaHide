@@ -2,7 +2,8 @@ var user = document.querySelectorAll("#user");
 var chatWin = document.getElementById("chatNav");
 var chatBox =document.getElementById('chatBox')
 var formMessage = document.getElementById('formMessage')
-
+var latestMessage ;
+var time ;
 var socket = io();
 
 console.log(user);
@@ -30,12 +31,12 @@ $("#setting").click(function () {
 });
 let chatId = '';
 $(".contact").click((e) => {
-  console.log(e.target.childNodes[3].childNodes[1].firstElementChild.innerText);
-  
+  console.log(e.target);
   chatId = e.target.id;
   //join clicked chat
   socket.emit('join',chatId)
-
+  latestMessage=e.target.childNodes[3].childNodes[3].childNodes[1]
+  time=e.target.childNodes[3].childNodes[1].children[1]
   chatWin.innerHTML = ` <div class="img-user position-relative">
                                            ${e.target.childNodes[1].childNodes[1].outerHTML}
                                         </div>
@@ -52,7 +53,7 @@ $(".contact").click((e) => {
     var data = res.data.messages;
     for (let i = 0; i < data.length; i++) {
       msgs += `<div class="massage ${ data[i].sender.username == e.target.childNodes[3].childNodes[1].firstElementChild.innerText? 'friendMassage': 'myMassage'}">
-                      <p> ${data[i].content}<br> <span>${data[i].time}</span></p>
+                      <p> ${data[i].content}<br> <span>${new Date(Date.parse(data[i].time)).toLocaleString("en-EG",{hour12:true,hour:"numeric",minute:"2-digit"})}</span></p>
                      </div>`;
     }
     chatBox.innerHTML=msgs
@@ -87,12 +88,12 @@ if(formMessage){
 socket.on('chatMsg', (msg,chatId,senderId)=>{
   console.log(msg,chatId,senderId)     
   var msgHtml = ` <div class="massage ${senderId==currentId? 'myMassage':'friendMassage'} ">
-  <p> ${msg}<br> <span>9:48</span></p>
+  <p> ${msg}<br> <span>${new Date(Date.now()).toLocaleString("en-EG",{hour12:true,hour:"numeric",minute:"2-digit"})}</span></p>
  </div> `
   chatBox.innerHTML+=msgHtml
   chatBox.scrollTop = chatBox.scrollHeight;
-
-
+  latestMessage.innerHTML =`<p>${msg}</p>` 
+  time.innerText=`${new Date(Date.now()).toLocaleString("en-EG",{hour12:true,hour:"numeric",minute:"2-digit"})}`
   
   msg=''
 

@@ -56,20 +56,23 @@
                                     <% for( let i =0; i < locals.chats?.length; i++ ) { %>
                                         <% var otherUser = locals.chats[i].users[0]._id.toString()==locals.user._id? locals.chats[i].users[1] : locals.chats[i].users[0]%>
 
-                                    <div class="contact active d-flex " name="contacts"  id="<%= locals.chats[i]._id %>">
+                                    <div class="contact  d-flex " name="contacts"  id="<%= locals.chats[i]._id %>">
                                         <div class="img-contact disabled">
                                             <img src="../img/<%= otherUser?.photo %>" alt="background" class="cover ">
                                         </div>
                                         <div class="details w-100 disabled ">
                                             <div class="name d-flex justify-content-between disabled">
                                                 <h4 ><%= otherUser?.username %></h4>
-                                                <p class="time disabled ">10:56</p>
-                                            
-                                            <div class="massage-p d-flex justify-content-between disabled">
-                                                <p><%#   locals.chats[i].latestMessage %></p>
-                                            
+                                                <% if(locals.chats[i].updatedAt) {%>
+                                                <p class="time disabled "><%= new Date(locals.chats[i].updatedAt).toLocaleString("en-EG",{hour12:true,hour:"numeric",minute:"2-digit"}) %></p>
+                                                <% } %>
                                             </div>
-                                        </div>
+                                            <div class="massage-p d-flex justify-content-between disabled">
+                                                <% if(locals.chats[i].latestMessage) {%>
+
+                                                <p><%=  locals.chats[i].latestMessage %></p>
+                                                <% } %>
+                                            </div>
                                         </div>
                                     </div>
                                     <% } %>
