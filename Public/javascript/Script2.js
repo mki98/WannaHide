@@ -25,7 +25,7 @@ $("#chatClick").click(function () {
 });
 $("#contactClick").click(function () {
   $("#contactHide").fadeToggle(1000 , function(){
-    $("#chat-id").toggleClass("full" ,function(){
+    $("#chatHide").toggleClass("full" ,function(){
       $("#profile").fadeOut(2000)
     });
   });
