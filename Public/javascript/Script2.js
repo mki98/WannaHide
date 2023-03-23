@@ -2,15 +2,13 @@ var user = document.querySelectorAll("#user");
 var chatWin = document.getElementById("chatNav");
 var chatBox =document.getElementById('chatBox')
 var formMessage = document.getElementById('formMessage')
-<<<<<<< Updated upstream
-var latestMessage ;
-var time ;
-=======
 var menu = document.getElementById('menu');
 var setting = document.getElementById('setting');
 var profile = document.getElementById('profile');
->>>>>>> Stashed changes
+var latestMessage ;
+var time ;
 var socket = io();
+
 
 console.log(user);
 for (var i = 0; i < user.length; i++) {
