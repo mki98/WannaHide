@@ -17,30 +17,57 @@
                       </div>
                       <div class="collapse navbar-collapse justify-content-center " id="navbarSupportedContent">
                         <ul class="navbar-nav linksIcon mb-2 mb-lg-0">
-                          <li class="nav-item">
+                            <li class="nav-item" id="contactClick">
+                                <i class="fa-regular fa-id-badge"></i>
+                                <a class="nav-link" href="#" >Contact</a>
+                              </li>
+                          <li class="nav-item" id="chatClick">
                             <i class="fa-brands fa-rocketchat"></i>
-                            <a class="nav-link" href="#" id="chatClick">Chats</a>
+                            <a class="nav-link" href="#" >Chats</a>
                           </li>
                           <li class="nav-item">
-                            <i class="fa-regular fa-id-badge"></i>
-                            <a class="nav-link" href="#" id="contactClick">Contact</a>
+                            <i class="fa-solid fa-plus"></i>
+                            <a class="nav-link" href="#"id="addClick">add user</a>
+                            <input type="text" class="inputAdd">
                           </li>
-                          <li class="nav-item">
-                            <i class="fa-solid fa-gears"></i>
-                            <a class="nav-link" href="#">Setting</a>
-                          </li>
+
+
                         </ul>
                       </div>
-                      <div class="profile d-flex align-content-sm-center">
+                      <div class="profile d-flex align-content-sm-center" id="img-menu">
                         <h4 class="text-white fs-6 me-3 mt-1"><%= locals.user.username %></h4>
-                        <div class="img-profile">
-                            
+                        <div class="img-profile position-relative">
                             <img src="../img/<%= locals.user.photo %>" alt="background">
+                            <div class="sub-menu-wrap position-absolute" id="menu">
+                                <div class="sub-menu">
+                                    <div class="user-info d-flex align-items-center ">
+                                        <img src="../img/IMG-20210702-WA0006.jpg" alt="" >
+                                        <h2 >Abdel-Rahmen Fathy</h2>
+                                    </div>
+                                    <hr>
+                                    <a href="#" class="sub-menu-links" id="setting">
+                                        <i class="fa-solid fa-gear"></i>                                            
+                                        <p>Settings & Privacy</p>
+                                        <span>></span>
+                                    </a>
+                                    <a href="#" class="sub-menu-links">
+                                        <i class="fa-solid fa-circle-question"></i>                                            
+                                        <p>Help & Support</p>
+                                        <span>></span>
+                                    </a>
+                                    <a href="#" class="sub-menu-links">
+                                        <i class="fa-solid fa-arrow-right-from-bracket"></i>                                            
+                                        <p>Log Out</p>
+                                        <span>></span>
+                                    </a>
+                                </div>
+
+                            </div>  
                         </div>
                       </div>
                     </div>
                 </nav>
-                <div class=" chat-contact container-fluid p-0 ">
+                <div class="chat-contact container-fluid p-0 ">
                     <div class="row gx-0">
                         <div class="col-md-4">
                             <div class="contacts" id="contactHide">
@@ -107,6 +134,17 @@
                                 </div>
                             </form>
                             </div>
+                        </div>
+                        <div class="col-md-12 bg-danger" id="profile">
+                            <h1>Edit The Profile</h1>
+                            <div class="row">
+                                <div class="col-md-4 bg-info">
+                                    <div class="imgPro">
+                                        <img src="../img/client-3.png" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </div>
                         
                     </div>

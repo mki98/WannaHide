@@ -2,8 +2,14 @@ var user = document.querySelectorAll("#user");
 var chatWin = document.getElementById("chatNav");
 var chatBox =document.getElementById('chatBox')
 var formMessage = document.getElementById('formMessage')
+<<<<<<< Updated upstream
 var latestMessage ;
 var time ;
+=======
+var menu = document.getElementById('menu');
+var setting = document.getElementById('setting');
+var profile = document.getElementById('profile');
+>>>>>>> Stashed changes
 var socket = io();
 
 console.log(user);
@@ -14,21 +20,23 @@ for (var i = 0; i < user.length; i++) {
   });
 }
 $("#chatClick").click(function () {
-  $("#chatHide").slideToggle(1000);
+  $("#chatHide").fadeToggle(1000 , function(){
+    $("#profile").fadeOut(2000)
+  });
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 $("#contactClick").click(function () {
-  $("#contactHide").fadeToggle(1000);
+  $("#contactHide").fadeToggle(1000 , function(){
+    $("#chat-id").toggleClass("full" ,function(){
+      $("#profile").fadeOut(2000)
+    });
+  });
   chatBox.scrollTop = chatBox.scrollHeight;
   //   $("#chatHide").tog(1000);
 
-  $("#chat-id").toggleClass("full");
 });
 
-$("#setting").click(function () {
-  chatBox.scrollTop = chatBox.scrollHeight;
-  $("#sitt").fadeToggle(1000);
-});
+
 let chatId = '';
 $(".contact").click((e) => {
   console.log(e.target);
@@ -97,4 +105,26 @@ socket.on('chatMsg', (msg,chatId,senderId)=>{
   
   msg=''
 
+})
+
+
+
+
+
+
+$("#img-menu").click (function(){
+  $("#menu").slideToggle(1000)
+})
+
+
+$("#setting").click (function(){
+  $("#profile").fadeIn(500,function(){
+    $("#contactHide").fadeOut(1000 , function(){
+      $("#chatHide").fadeOut(1000)
+    })
+  })
+})
+
+$("#addClick").click (function(){
+  $(".inputAdd").toggle(1000 );
 })
