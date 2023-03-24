@@ -38,7 +38,11 @@ const UserSchema = new mongoose.Schema({
   createdAt:{
     type:Date,
     default: Date.now()
-  }
+  },
+  requests:[{
+    type: mongoose.Schema.ObjectId,
+    ref: "Users",
+  }]
 },{strict:false});
 
 

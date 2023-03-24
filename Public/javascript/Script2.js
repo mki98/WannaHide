@@ -5,6 +5,7 @@ var formMessage = document.getElementById('formMessage')
 var menu = document.getElementById('menu');
 var setting = document.getElementById('setting');
 var profile = document.getElementById('profile');
+var addFriend = document.getElementById('addFriend')
 var latestMessage ;
 var time ;
 var socket = io();
@@ -124,5 +125,26 @@ $("#setting").click (function(){
 })
 
 $("#addClick").click (function(){
+  addFriend.addEventListener('submit',(e)=>{
+    e.preventDefault()
+    if(e.target[0].value){
+      var friend = e.target[0].value
+      axios({
+        method:'POST',
+        url:'/api/v1/users/contacts',
+        data:{
+          friend
+        }
+      }).then(res=>{
+        if(res.status == 200){
+          alert(res.data.message)
+        }
+      }).catch(err=>{
+        console.log(err)
+        alert(err.response.data.message)
+      })
+      e.target[0].value=''
+    }
+  })
   $(".inputAdd").toggle(1000 );
 })

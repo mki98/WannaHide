@@ -17,8 +17,9 @@ exports.checkToken = async (token) => {
     const valid = jwt.verify(token, process.env.JWT_SECRET);
     return valid;
   } catch (error) {
-    console.log(error);
-  }
+    console.log(error)
+    return null
+    }
 };
 const generateToken = () => {
   return crypto.randomBytes(20).toString("hex").slice(0, 15);
@@ -48,6 +49,7 @@ exports.protect = async (req, res, next) => {
 
   // 2) Verification token
   const info = await this.checkToken(token);
+
   if (!info) return next(new AppError(401, "Invalid token please login again"));
   // 3) Check if user still exists
   const currentUser = await Users.findById(info.id);

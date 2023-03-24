@@ -12,4 +12,5 @@ router.use(authController.protect)
 router.get('/logout',authController.logout);
 router.get('/profile',usersController.getMe)
 router.route('/contacts').get(usersController.getContacts).post(usersController.addContact)
+router.route('/requests').get(usersController.getRequests).post(usersController.confirmReq)
 module.exports = router
