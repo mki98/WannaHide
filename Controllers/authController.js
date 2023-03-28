@@ -131,7 +131,7 @@ exports.signup = tryCatch(async (req, res) => {
   const user = await Users.create(obj);
   res
     .status(201)
-    .json({ status: "Success", message: "Email sent to confirm signup" });
+    .json({ status: "Success", message: "Email sent to confirm signup" ,user});
 });
 
 exports.confirmSignup = tryCatch(async (req, res) => {

@@ -9,4 +9,6 @@ messagesSchema = mongoose.Schema({
     chat:{type:mongoose.Schema.Types.ObjectId,ref:'Chats', required: true},
     time:{type:Date,default: Date.now()}
 })
+
+
 module.exports = mongoose.model('Messages',messagesSchema)

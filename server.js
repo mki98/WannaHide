@@ -43,6 +43,7 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
 server.listen(5000, () => {
   console.log("Server is Running on port 5000");
 });

@@ -42,7 +42,8 @@ const UserSchema = new mongoose.Schema({
   requests:[{
     type: mongoose.Schema.ObjectId,
     ref: "Users",
-  }]
+  }],
+  publicKey: {type: String}
 },{strict:false});
 
 
