@@ -14,18 +14,28 @@ var socket = io();
 console.log(user);
 for (var i = 0; i < user.length; i++) {
   user[i].addEventListener("click", function (e) {
-    $("#ourChat").fadeIn(1000);
+    $("#ourChat").fadeIn(1000 ,function(){
+      $("#requests-friend").fadeOut(1000 ,function(){
+        $("#chat-id").css({"display": "block"})
+      })
+    });
+    
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
 $("#chatClick").click(function () {
-  $("#chatHide").fadeToggle(1000 , function(){
-    $("#profile").fadeOut(2000)
+  $("#chatHide").fadeToggle(1 , function(){
+    $("#profile").fadeOut(2000 , function(){
+      $("#requests-friend").fadeOut(2000 ,function(){
+        $("#chat-id").css({"display": "block"})
+      })
+    })
   });
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 $("#contactClick").click(function () {
-  $("#contactHide").fadeToggle(1000 , function(){
+  $("#contactHide").fadeToggle(0, function(){
+    $("#requests-friend").fadeOut()
     $("#chatHide").toggleClass("full" ,function(){
       $("#profile").fadeOut(2000)
     });
@@ -69,14 +79,17 @@ $(".contact").click((e) => {
   });
 
   $("#chatHide").fadeIn(1000);
+  $("#requests-friend").fadeOut(1000)
+  $("#chat-id").css({"display": "block"})
+
 });
 let currentId='';
 if(formMessage){
   formMessage.addEventListener('submit',(e)=>{
     e.preventDefault()
-    currentId= e.target[0].attributes.sender.value
+    currentId= e.target[1].attributes.sender.value
     console.log(currentId)
-   let content = e.target[0].value
+   let content = e.target[1].value
    if(content){
     socket.emit('chat msg',content,chatId,currentId)
     e.target[0].value=''
@@ -101,14 +114,9 @@ socket.on('chatMsg', (msg,chatId,senderId)=>{
   chatBox.scrollTop = chatBox.scrollHeight;
   latestMessage.innerHTML =`<p>${msg}</p>` 
   time.innerText=`${new Date(Date.now()).toLocaleString("en-EG",{hour12:true,hour:"numeric",minute:"2-digit"})}`
-  
   msg=''
 
 })
-
-
-
-
 
 
 $("#img-menu").click (function(){
@@ -118,8 +126,10 @@ $("#img-menu").click (function(){
 
 $("#setting").click (function(){
   $("#profile").fadeIn(500,function(){
-    $("#contactHide").fadeOut(1000 , function(){
-      $("#chatHide").fadeOut(1000)
+    $("#contactHide").fadeOut(500 , function(){
+      $("#chatHide").fadeOut(500 , function(){
+        $("#requests-friend").fadeOut(1000)
+      })
     })
   })
 })
@@ -148,3 +158,36 @@ $("#addClick").click (function(){
   })
   $(".inputAdd").toggle(1000 );
 })
+
+$("#btn-request").click(function(){
+  $("#requests-friend").fadeIn(0 , function(){
+    $("#chatHide").fadeOut(0, function(){
+      $("#chat-id").css({"display": "none"})
+    })
+  })
+
+})
+
+
+
+
+  
+$(function(){
+$("#fileupload").change(function(e){
+  var read =URL.createObjectURL(e.target.files[0]);
+  $("#upload-img").attr("src", read)
+  $(".boximage").css({"display": "block"})
+$("#chatBox").css({"display": "none"})
+})
+
+})
+$("#exit").click(function(){
+  $("#chatBox").css({"display": "block"})
+  $(".boximage").css({"display": "none"})
+
+
+})
+
+
+
+ 

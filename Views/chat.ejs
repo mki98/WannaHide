@@ -9,6 +9,9 @@
             <div class="container-chat overflow-hidden">
                 <nav class="navbar navbar-expand-lg">
                     <div class="container">
+                        <div class="logo">
+                            <img src="../img/LOGO-02.png" alt="">
+                        </div>
                       <div>
                         <a class="navbar-brand" href="#">WannaHide</a>
                       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,25 +28,23 @@
                             <i class="fa-brands fa-rocketchat"></i>
                             <a class="nav-link" href="#" >Chats</a>
                           </li>
-                          <li class="nav-item">
+                          <li class="nav-item d-flex position-relative">
                             <i class="fa-solid fa-plus"></i>
-                            <a class="nav-link" href="#"id="addClick">add user</a>
-                            <form id="addFriend">
+                            <a class="nav-link" href="#" id="addClick">Add user</a>
+                            <form id="addFriend" class=" form-add position-absolute ">
                                 <input type="text" class="inputAdd">
                                 <input type="submit" hidden>
-
                             </form>
                         </li>
 
 
                         </ul>
                       </div>
-                      <div class="profile d-flex align-content-sm-center" id="img-menu">
-                        <h4 class="text-white fs-6 me-3 mt-1"><%= locals.user.username %></h4>
-                        <div class="img-profile position-relative">
+                      <div class="profile  d-flex align-content-sm-center" id="img-menu">
+                        <div class="img-profile  position-relative">
                             <img src="../img/<%= locals.user.photo %>" alt="background">
-                            <div class="sub-menu-wrap position-absolute" id="menu">
-                                <div class="sub-menu">
+                            <div class="sub-menu-wrap  position-absolute" id="menu">
+                                <div class="sub-menu ">
                                     <div class="user-info d-flex align-items-center ">
                                         <img src="../img/IMG-20210702-WA0006.jpg" alt="" >
                                         <h2 >Abdel-Rahmen Fathy</h2>
@@ -52,17 +53,14 @@
                                     <a href="#" class="sub-menu-links" id="setting">
                                         <i class="fa-solid fa-gear"></i>                                            
                                         <p>Settings & Privacy</p>
-                                        <span>></span>
                                     </a>
                                     <a href="#" class="sub-menu-links">
                                         <i class="fa-solid fa-circle-question"></i>                                            
                                         <p>Help & Support</p>
-                                        <span>></span>
                                     </a>
                                     <a href="#" class="sub-menu-links">
                                         <i class="fa-solid fa-arrow-right-from-bracket"></i>                                            
                                         <p>Log Out</p>
-                                        <span>></span>
                                     </a>
                                 </div>
 
@@ -74,7 +72,7 @@
                 <div class="chat-contact container-fluid p-0 ">
                     <div class="row gx-0">
                         <div class="col-md-4">
-                            <div class="contacts" id="contactHide">
+                            <div class="contacts " id="contactHide">
                                 <!-- Search -->
                                 <div class="searchName position-relative d-flex justify-content-center align-items-center">
                                     <div class="search-content w-100">
@@ -84,10 +82,21 @@
                                 </div>
                                 <!-- End Search -->
                                 <div class="contact-list">
+                                    <div class="requst d-flex position-relative"name="request">
+                                        <div class="w-100 " id="btn-request">
+                                            <div class="name name-request d-flex justify-content-between">
+                                                <h4 class="px-4 py-2 fs-4 text-white" >Requests</h4>
+                                                <p class="time disabled"></p>     
+                                            </div>
+                                            <div class="d-flex mb-2 bg-white justify-content-between position-absolute bottom-0 end-0">
+                                                <b class="text-dark bg-white">2</b>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <% for( let i =0; i < locals.chats?.length; i++ ) { %>
                                         <% var otherUser = locals.chats[i].users[0]._id.toString()==locals.user._id? locals.chats[i].users[1] : locals.chats[i].users[0]%>
 
-                                    <div class="contact  d-flex " name="contacts"  id="<%= locals.chats[i]._id %>">
+                                    <div class="contact d-flex " name="contacts"  id="<%= locals.chats[i]._id %>">
                                         <div class="img-contact disabled">
                                             <img src="../img/<%= otherUser?.photo %>" alt="background" class="cover ">
                                         </div>
@@ -111,34 +120,79 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="chat-id" class="col-md-8 ">
+                        <div id="chat-id" class="col-md-8">
                             <div class="chat-message position-relative" id="chatHide">
                                 <div class="header d-flex justify-content-between align-items-center">
                                     <div id="chatNav" class="img-text  position-relative d-flex justify-content-center align-items-center">
                                        
                                     </div>
-                                <!-- Nav Bar -->
-                                    <ul class="navIcon d-flex">
-                                        <li><i class="fa-solid fa-ellipsis-vertical"></i></li>
-                                    </ul> 
                                 </div>
                                 <!-- Chat Box -->
-                                <div class="chat-box" id="chatBox">
-
+                                <div class="chat-box " id="chatBox">
+                                    <div class="massage myMassage">
+                                        <p>
+                                            <img src="../img/IMG-20210702-WA0006.jpg" alt="">
+                                             <br> 
+                                             <span>08:55</span>
+                                        </p>
+                                       </div>
                                   
+                                </div>
+                                <div class="boximage">
+                                    <div class="img-box d-flex justify-content-center align-items-center">
+                                        <div class="image">
+                                            <i class="fa-solid fa-xmark" id="exit"></i>
+                                            <img src="/img/IMG-20210702-WA0006.jpg" alt="" id="upload-img">
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- Chat Input -->
                                 <form id="formMessage">
                                 <div class="chatBox-input d-flex justify-content-between align-items-center">
-                                    <i class="fa-regular fa-face-smile"></i>
-                                    <i class="fa-solid fa-paperclip"></i>
+                                    <label  for="fileupload"><i id="iconUpload" class="fa-solid fa-paperclip"></i></label>
+                                    <input type="file" id="fileupload" accept="image/*">
                                     <input type="text" sender="<%= locals.user._id %>"placeholder="Type a massage">
                                     <input type="submit"  hidden >
-                                    <i class="fa-solid fa-microphone"></i>
+                                    <i class="fa-solid fa-circle-arrow-right"></i>
                                 </div>
                             </form>
                             </div>
                         </div>
+                        <div class="col-md-8" id="requests-friend">
+                            <div class="container">                
+                                <div class="card requests">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Requests</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="cart-container">
+                                            <table class="table table-borderless table-striped">
+                                                <thead class="text-center">
+                                                    <tr>
+                                                        <th scope="col" >User-Name</th>                                               
+                                                        <th scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody  class="text-center">
+                                                    <tr>
+                                                        <td class="pt-3" >abdo30688</td>
+                                                        <td class="action-request d-flex justify-content-center align-items-center">
+                                                            <div class="iconR">
+                                                                <i class="fa-solid fa-check"></i>
+                                                            </div>
+                                                            <div class="iconR">
+                                                                <i class="fa-solid fa-xmark"></i>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     <div class="container" id="profile">
                         <div class="row gutters">
                         <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
@@ -151,7 +205,6 @@
                                                 <img src="../img/IMG-20210702-WA0006.jpg" alt="Maxwell Admin">
                                             </div>
                                             <h5 class="user-name">Abdel-Rahman Fathy</h5>
-                                            <h6 class="user-email">abdelrahman30688@gmail.com</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -163,24 +216,12 @@
                             <div class="card-body">
                                 <div class="row gutters">
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                        <h6 class="mb-2 text-primary">Personal Details</h6>
-                                    </div>
-                                    <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12 ">
-                                        <div class="form-group">
-                                            <label for="eMail">Email</label>
-                                            <input type="email" class="form-control" id="eMail" placeholder="Enter email ID">
-                                        </div>
-                                        <div class="text-right">
-                                            <button type="button" id="submit" name="submit" class="btn btn-primary">Update</button>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                        <h6 class="mb-2 text-primary mt-3">Change Password</h6>
+                                        <h6 class="mb-2 mt-3" style="color: #A74B94;">Change Password</h6>
                                     </div>
                                     <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group ">
                                             <label for="eMail">old password</label>
-                                            <input type="password" class="form-control" id="eMail" placeholder="Enter old password">
+                                            <input type="password" class="form-control" id="eMail" placeholder="Enter old password" readonly>
                                         </div>
                                     </div>
                                     <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -200,7 +241,7 @@
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                         <div class="text-right">
                                             <button type="button" id="submit" name="submit" class="btn btn-secondary">Cancel</button>
-                                            <button type="button" id="submit" name="submit" class="btn btn-primary">Change Password</button>
+                                            <button type="button" id="submit" name="submit" class="btn text-white" style="background-color: #A74B94;">Change Password</button>
                                         </div>
                                     </div>
                                 </div>

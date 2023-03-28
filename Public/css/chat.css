@@ -1,14 +1,14 @@
 .home-chat {
     background-position: center center;
     background-size: cover;
-    background-image: url(../img/stars-1654074_1920.jpg);
+    background-image: url(../img/Digital-Security-Magazine-2021-Cybersecurity-Risk-of-AI-Algorithms.jpg);
     height: 100vh;
   }
 /* Start sub Menu */
 .sub-menu-wrap{
     width: 320px;
     z-index: 10;
-    background-color: #20298c;
+    background-color: #fff;
     border-radius: 10px;
     display: none;
     top: 125%;
@@ -37,7 +37,7 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #fff;
+  color: #000;
   margin: 12px 0;
 }
 .sub-menu-links p{
@@ -49,19 +49,20 @@
 }
 .sub-menu-links:hover span{
   transform: translateX(5px);
-  color: #fff;
+  color: ;
 
 }
 .sub-menu-links:hover p{
   font-weight: 600;
-  color: #fff;
+  color: #4C2A63;
 }
 .sub-menu-links i{
   width: 40px;
-  background-color: #525252;
+  background-color: #A74B94;
   border-radius: 50%;
   padding: 10px;
   margin-right: 15px;
+  color: #fff;
 }
 /* .sub-menu-wrap.openmenu{
     height: 400px;
@@ -69,14 +70,19 @@
 
 
 /* End sub Menu */
-
-  :root {
-    --bgColor: #222921;
-    --bgColor2: #0a58ab;
+  .logo{
+    width: 60px; 
+    margin-right: 10px;
+  }
+  .logo img{
+    width: 100%;
   }
   .navbar .container {
     width: 90%;
     margin: auto;
+  }
+  .navbar .navbar-brand{
+    color: #A74B94;
   }
   .container-chat {
     width: 85%;
@@ -88,7 +94,7 @@
     border-top-right-radius: 20px;
   }
   .navbar {
-    background-color: var(--bgColor);
+    background:linear-gradient(to right,rgba(0,0,0,.8),rgba(98, 97, 97, 0.19)) ;
     height: 60px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
@@ -98,18 +104,32 @@
     justify-content: center;
     align-items: center;
   }
+  .nav-item a{
+    color: #A74B94;
+
+  }
+  .nav-item a:hover{
+    color: #fff;
+  }
+  
   .linksIcon i {
-    color: #70747c;
+    color: #fff;
     cursor: pointer; 
     margin-left: 20px;
+  }
+  .form-add{
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
   }
 .inputAdd{
     border: none;
     outline: none;
     border-radius: 10px;
-    width: 200px;
+    width: 150px;
+    height: 25px;
     padding: 3px 10px;
-    display: none;    
+    display: none; 
   }
   .chat-contact {
     width: 100%;
@@ -125,7 +145,7 @@
   .searchName {
     position: relative;
     height: 60px;
-    background-color: var(--bgColor2);
+    background-color: #4C2A63;
     padding: 0 15px;
     border-right: 1px solid #fff;
   }
@@ -152,7 +172,8 @@
   
   /* Contact List */
   .contacts {
-    background-color: var(--bgColor);
+    background-color: #f0f0f0;
+    border-right: solid #fff 2px;
   }
   .contact-list {
     overflow-y: auto;
@@ -160,7 +181,7 @@
   }
   .contact-list .contact {
     padding: 12px 15px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid #4C2A63;
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -181,7 +202,7 @@
     margin-right: 10px;
   }
   .details .name h4 {
-    color: #fff;
+    color: #4C2A63;
   }
   .contact h4 {
     font-size: 0.9rem;
@@ -206,7 +227,7 @@
   }
   
   .massage-p p {
-    color: #aaa;
+    color: #000;
     display: -webkit-box; /*!!!!!!!عشان لو في كلام اتكتب كتير يحطلي نقطط ومينزلش سطر*/
     -webkit-line-clamp: 1; /*!!!!!!!*/
     font-size: 0.9rem;
@@ -236,10 +257,11 @@
     line-height: 1.3rem;
     margin-left: 15px;
     font-size: 1rem;
+    color: #fff;
   }
   .img-text h4 span {
     font-size: 0.8rem;
-    color: #3c00a0;
+    color: #a4f5d5;
   }
   .full {
     min-width: 100% !important;
@@ -248,13 +270,47 @@
     display: none;
   }
   /* Chat box */
+  #fileupload{
+    display: none;
+  }
+  #chat-id{
+    display: block;
+  }
+  .boximage{
+    display: none;
+  }
   .chat-box {
     position: relative;
     width: 100%;
     height: calc(85vh - 180px);
     padding: 20px;
     overflow-y: auto;
-    background-color: var(--bgColor);
+    background-color: transparent;
+  }
+  .img-box{
+    position: relative;
+    width: 100%;
+    height: calc(85vh - 180px);
+    background-color: #fff;
+
+  }
+  .img-box i {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    font-size: 30px;
+    cursor: pointer;
+
+  }
+  .img-box .image{
+    width: 80%;
+    height: 80%;
+
+
+  }
+  .img-box img{
+    width: 100%;
+    height: 100%;
   }
   .massage {
     position: relative;
@@ -271,6 +327,10 @@
     background-color: #dcf8dc;
     border-radius: 10px;
     font-size: 0.9rem;
+  }
+  .massage img{
+    width: 150px;
+    height: 150px;
   }
   .massage p::before {
     content: "";
@@ -312,23 +372,18 @@
     width: 20px;
     left: -12;
     top: 0;
-    background: linear-gradient(
-      225deg,
-      #fff 0%,
-      #fff 50%,
-      transparent 50%,
-      transparent
-    );
+    background: linear-gradient(225deg,#fff 0%,#fff 50%,transparent 50%,transparent);
   }
   .chatBox-input {
     height: 60px;
     background-color: #f0f0f0;
     padding: 15px;
   }
+
   .chatBox-input i {
     cursor: pointer;
     font-size: 1.5rem;
-    color: #51585c;
+    color: #A74B94;
   }
   .chatBox-input i:nth-child(1) {
     margin-right: 15px;
@@ -352,7 +407,7 @@
   }
   .header {
     height: 60px;
-    background-color: var(--bgColor2);
+    background-color:#4C2A63;
     padding: 0 15px;
   }
   .img-user {
@@ -455,4 +510,55 @@ h1{
     border-radius: 5px;
     border: 0;
     margin-bottom: 1rem;
+}
+
+
+
+/* requst page */
+.iconR{
+  width: 40px;
+  height:40px;
+  text-align: center;
+  margin-left: 10px;
+  border-radius: 50%;
+}
+.iconR i{
+  margin-top: 11px;
+  font-size: 20px;
+}
+.iconR:nth-child(1){
+  background-color: rgb(28, 168, 28);
+  color: #fff;
+}
+.iconR:nth-child(2){
+  background-color: rgb(199, 55, 55);
+  color: #fff;
+
+}
+
+#requests-friend{
+  display: none;
+}
+.name-request{
+  background-color: #A74B94;
+
+}
+.requests{
+  height: calc(85vh - 60px);
+}
+.card{
+  border-radius: 0px !important;
+}
+.cart-container {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 30px;
+
+}
+
+.cart-container .cart-body {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 30px 0 20px;
+  margin: 20px 0 30px;
+
 }
