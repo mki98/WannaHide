@@ -11,7 +11,7 @@ export function openDatabase(databaseName, version, objectStores) {
       objectStores.forEach((store) => {
         if (!db.objectStoreNames.contains(store.name)) {
           db.createObjectStore(store.name, { keyPath: store.keyPath });
-        }
+        } 
       });
     };
   

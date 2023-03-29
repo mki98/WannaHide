@@ -65,32 +65,10 @@ exports.handelSockets = (server) => {
       console.log("user disconnected");
     });
 
-    socket.on("chat msg", (msg, chatId, senderId,sharedKey,localCount) => {
+    socket.on("chat msg", (msg, chatId, senderId) => {
       //sending a message
-      function deriveKey(key, msgNum) {
-        return crypto.createHmac("sha256", key).update(String(msgNum)).digest();
-      }
-      function encrypt(msg,ratchetKey) {
-        const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv("aes-256-cbc", ratchetKey, iv);
-        return (
-          iv.toString("base64") +
-          cipher.update(msg, "utf8", "base64") +
-          cipher.final("base64")
-        );
-      }
-      let ratchetKey;
-      ratchetKey = deriveKey(sharedKey, localCount);
-      console.log("Ratchet Key", ratchetKey);
-      let ciphertext = encrypt(msg,ratchetKey)
-      console.log("encrypted", ciphertext)
-      console.log("localCount", localCount)
 
-      io.in(chatId).emit("decrypt", ciphertext, chatId, senderId);
+      io.in(chatId).emit("chatMsg", msg, chatId, senderId);
     });
-
-    socket.on("decrypt",(msg,)=>{
-
-    })
   });
 };

@@ -16,7 +16,7 @@ function generateRandomBigInt(lowBigInt, highBigInt) {
     const randomDifference = (difference * BigInt(multiplier)) / BigInt(divisor);
   
     return lowBigInt + randomDifference;
-  } //Master Math
+  } 
 
 export class KeyPairs {
     constructor() {
