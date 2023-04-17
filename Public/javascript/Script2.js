@@ -320,12 +320,16 @@ function decrypt(enc, ratchetKey) {
 socket.on("chatMsg", async (enc, chatId, senderId) => {
   //decrypt the message
   if (senderId !== currentId) {
+    // alert(`u r ${currentId},other person ${senderId }`)
+    //when not joined
+
+    
     let remoteCount;
     let sharedKey;
-
+    console.log("reciver")
     var request = indexedDB.open('User', 1);
     request.onsuccess=async function(e){
-      let db = e.target.result;
+    let db = e.target.result;
     let store = await db.transaction("keys", "readwrite").objectStore("keys");
     let req = await store.get(chatId);
     req.onsuccess = async function (e) {
@@ -403,7 +407,9 @@ socket.on("chatMsg", async (enc, chatId, senderId) => {
     };
   }}
 });
-
+socket.on("awayMsg", async (enc, currentId, senderId,chatId) => {
+  alert(`message ${enc}from ${senderId} because u ${currentId} is away`)
+})
 $("#img-menu").click(function () {
   $("#menu").slideToggle(1000);
 });
@@ -473,8 +479,7 @@ $("#exit").click(function () {
 
 
 
-
-var reqBod = getElementById('reqBod');
+var reqBod = document.getElementById('reqBod');
 Reqs.addEventListener('click',(e)=>{
   e.preventDefault();
 
