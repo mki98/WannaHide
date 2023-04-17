@@ -1,5 +1,6 @@
 const { tryCatch } = require("../Utils/tryCatch");
 const Chats = require("../Models/chatsModel");
+const User = require("../Models/userModel");
 const axios = require('axios')
 exports.authUser = tryCatch((req, res) => {
   res.render("sign");
@@ -10,11 +11,13 @@ exports.index = tryCatch((req, res) => {
 
 exports.chat = tryCatch(async(req, res) => {
     console.log('ur ',res.locals.user)
-  if (!res.locals.user) {
+    const user = res.locals.user;
+  if (!user) {
     return res.redirect("/accounts");
   }
   const chats = await Chats.find({ users: res.locals.user._id }).populate('users');
-  res.render("chat", { user: res.locals.user , chats:chats });
+  const requests = user.requests.length;
+  res.render("chat", { user , chats,requests });
 });
 
 

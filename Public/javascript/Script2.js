@@ -8,7 +8,7 @@ var profile = document.getElementById("profile");
 var addFriend = document.getElementById("addFriend");
 var latestMessage;
 var time;
-var Reqs = document.getElementById("Requests")
+var Reqs = document.getElementById("btn-request")
 import { openDatabase, storeKeys } from "./indexDB.js";
 import { generateSharedKey } from "./keyGen.js";
 
@@ -132,39 +132,92 @@ $(".contact").click(async (e) => {
                                             <h4>${e.target.childNodes[3].childNodes[1].firstElementChild.innerText} <br> <span>online</span></h4>
                                         </div>`;
 
-  var messagedb = await openDatabase("Chats", 1, [{
-    name:"messages"},
-    { keyPath: "id", autoIncrement: true },
-  ]);
-  console.log(messagedb);
+  let Chatsdb = indexedDB.open("Chats",2)
+  //   // Open the "chats" database with a version number of 1
+  // var request = indexedDB.open('Chats', 1);
+
+  Chatsdb.onupgradeneeded = function(event) {
+    let db = event.target.result;
+    let store;
+    // Create a "messages" store with an autoincremented keypath
+    if(!db.objectStoreNames.contains("messages")){
+    store = db.createObjectStore('messages', { keypath:"id",autoIncrement: true });
+    }else{
+      store= event.target.transaction.objectStore("messages");
+      
+    }
+    // Create a "chatId" index
+    store.createIndex("chatId", "chatId", { unique: false });
+  };
+
+  Chatsdb.onsuccess = function(event) {
+    let db = event.target.result;
+
+    // Add the new message to the "messages" store
+    let transaction = db.transaction('messages', 'readonly');
+    let messageStore = transaction.objectStore('messages');
+    const index = messageStore.index("chatId");
+    const query = index.openCursor(IDBKeyRange.only(chatId));
+  
+    // Loop through the results and log each document
+    let msgs = "";
+    query.onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor) {
+
+        msgs += `<div class="massage ${
+                  cursor.value.senderId == currentId ? "myMassage" : "friendMassage"
+                }">
+                                      <p> ${cursor.value.content}<br> <span>${new Date(
+                  Date.parse(cursor.value?.time) ///1234    890
+                ).toLocaleString("en-EG", {
+                  hour12: true,
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}</span></p>
+                                     </div>`;
+        console.log(cursor.value);
+        cursor.continue();
+      }
+      transaction.oncomplete = function(event) {
+        chatBox.innerHTML = msgs;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        console.log('Retrived Local Messages');
+      };
+    };
+  }
+  Chatsdb.onerror = function(event) {
+    console.error('Error opening database:', event.target.error);
+  };
+
   // var store =  messagedb.transaction("messages",'readwrite').objectStore("messages")
 
-  var store = await messagedb.transaction("messages").objectStore("messages");
-  var req = store.getAll(chatId);
-  req.onsuccess = function (e) {
-    if (e.target.result.length > 0) {
-      var msgs = "";
-      e.target.result.forEach((element) => {
-        msgs += `<div class="massage ${
-          element.senderId == currentId ? "myMassage" : "friendMassage"
-        }">
-                              <p> ${element.content}<br> <span>${new Date(
-          Date.parse(element?.time) ///1234    890
-        ).toLocaleString("en-EG", {
-          hour12: true,
-          hour: "numeric",
-          minute: "2-digit",
-        })}</span></p>
-                             </div>`;
-      });
-      chatBox.innerHTML = msgs;
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-    //chatId sender time content
-  };
-  req.onerror = function (e) {
-    console.log(e.target.error);
-  };
+  // var store = await messagedb.transaction("messages").objectStore("messages");
+  // var req = store.getAll(chatId);
+  // req.onsuccess = function (e) {
+  //   if (e.target.result.length > 0) {
+  //     var msgs = "";
+  //     e.target.result.forEach((element) => {
+  //       msgs += `<div class="massage ${
+  //         element.senderId == currentId ? "myMassage" : "friendMassage"
+  //       }">
+  //                             <p> ${element.content}<br> <span>${new Date(
+  //         Date.parse(element?.time) ///1234    890
+  //       ).toLocaleString("en-EG", {
+  //         hour12: true,
+  //         hour: "numeric",
+  //         minute: "2-digit",
+  //       })}</span></p>
+  //                            </div>`;
+  //     });
+  //     chatBox.innerHTML = msgs;
+  //     chatBox.scrollTop = chatBox.scrollHeight;
+  //   }
+  //   //chatId sender time content
+  // };
+  // req.onerror = function (e) {
+  //   console.log(e.target.error);
+  // };
 
   // axios({
   //   method: "GET",
@@ -264,7 +317,7 @@ if (formMessage) {
           console.log(e.target.error);
         };
         // Open the "chats" database with a version number of 1
-      var request = indexedDB.open('Chats', 1);
+      var request = indexedDB.open('Chats', 2);
 
     request.onupgradeneeded = function(event) {
       var db = event.target.result;
@@ -377,7 +430,7 @@ socket.on("chatMsg", async (enc, chatId, senderId) => {
       })}`;
 
       // Open the "chats" database with a version number of 1
-      var request = indexedDB.open('Chats', 1);
+      var request = indexedDB.open('Chats', 2);
 
       request.onupgradeneeded = function(event) {
         var db = event.target.result;
@@ -483,16 +536,15 @@ var reqBod = document.getElementById('reqBod');
 Reqs.addEventListener('click',(e)=>{
   e.preventDefault();
 
-
   axios({
     method: "GET",
     url: "/api/v1/users/requests",
     
   }).then(res=>{
-   
+   console.log(res)
     for(var i=0;i<res.data.requests.length;i++){
      reqBod.innerHTML+=` <tr>
-      <td class="pt-3" >${res.data}</td>
+      <td class="pt-3" >${res.data.requests[i].username}</td>
       <td class="action-request d-flex justify-content-center align-items-center">
           <div class="iconR">
               <i class="fa-solid fa-check"></i>

@@ -8,9 +8,7 @@ exports.handelSockets = (server) => {
   const io = socketio(server);
 
   io.on("connection", async(socket) => {
-    console.log("user conected",socket.handshake.headers.cookie.split("=")[1]);
     const curntUserToken = socket.handshake.headers.cookie.split("=")[1];
-    
     const userobj= await authcontroller.checkToken(curntUserToken)
     const userId=userobj.id
     socket.join(userId)
@@ -28,12 +26,7 @@ exports.handelSockets = (server) => {
     socket.on("disconnect", () => {
       console.log("user disconnected");
     });
-    socket.on("awayMessage", (msg, awayId, senderId,chatId) => {
-      console.log("in away message in back",awayId)
-      //sending a message
-      io.to(awayId).emit("awayMsg", msg,awayId , senderId,chatId);
     
-    })
     socket.on("chat msg", async (msg, chatId, senderId) => {
       //sending a message
       //sender & current user is one person 

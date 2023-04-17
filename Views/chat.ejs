@@ -84,12 +84,12 @@
                                 <div class="contact-list">
                                     <div class="requst d-flex position-relative"name="request">
                                         <div class="w-100 " id="btn-request">
-                                            <div class="name name-request d-flex justify-content-between">
-                                                <h4 class="px-4 py-2 fs-4 text-white" >Requests</h4>
-                                                <p class="time disabled"></p>     
+                                            <div class="name name-request d-flex justify-content-between disabled">
+                                                <h4 class="px-4 py-2 fs-4 text-white disabled" >Requests</h4>
+                                                <!-- <p class="time disabled"></p>      -->
                                             </div>
                                             <div class="d-flex mb-2 bg-white justify-content-between position-absolute bottom-0 end-0">
-                                                <b class="text-dark bg-white">2</b>
+                                                <b class="text-dark bg-white"><%= locals.requests %></b>
                                             </div>
                                         </div>
                                     </div>
@@ -162,7 +162,7 @@
                             <div class="container">                
                                 <div class="card requests">
                                     <div class="card-header" id="Requests">
-                                        <h5 class="card-title">Requests</h5>
+                                        <h5 class="card-title disabled">Requests</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="cart-container">
