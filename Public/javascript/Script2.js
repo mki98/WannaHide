@@ -1,4 +1,3 @@
-var user = document.querySelectorAll("#user");
 var chatWin = document.getElementById("chatNav");
 var chatBox = document.getElementById("chatBox");
 var formMessage = document.getElementById("formMessage");
@@ -11,6 +10,7 @@ var time;
 var Reqs = document.getElementById("btn-request")
 import { openDatabase, storeKeys } from "./indexDB.js";
 import { generateSharedKey } from "./keyGen.js";
+var resBtn;
 
 function deriveKey(key, msgNum) {
   return CryptoJS.HmacSHA256(msgNum.toString(), key.toString()).toString();
@@ -133,7 +133,7 @@ $(".contact").click(async (e) => {
                                         </div>`;
 
   let Chatsdb = indexedDB.open("Chats",2)
-  //   // Open the "chats" database with a version number of 1
+    // Open the "chats" database with a version number of 1
   // var request = indexedDB.open('Chats', 1);
 
   Chatsdb.onupgradeneeded = function(event) {
@@ -190,61 +190,6 @@ $(".contact").click(async (e) => {
     console.error('Error opening database:', event.target.error);
   };
 
-  // var store =  messagedb.transaction("messages",'readwrite').objectStore("messages")
-
-  // var store = await messagedb.transaction("messages").objectStore("messages");
-  // var req = store.getAll(chatId);
-  // req.onsuccess = function (e) {
-  //   if (e.target.result.length > 0) {
-  //     var msgs = "";
-  //     e.target.result.forEach((element) => {
-  //       msgs += `<div class="massage ${
-  //         element.senderId == currentId ? "myMassage" : "friendMassage"
-  //       }">
-  //                             <p> ${element.content}<br> <span>${new Date(
-  //         Date.parse(element?.time) ///1234    890
-  //       ).toLocaleString("en-EG", {
-  //         hour12: true,
-  //         hour: "numeric",
-  //         minute: "2-digit",
-  //       })}</span></p>
-  //                            </div>`;
-  //     });
-  //     chatBox.innerHTML = msgs;
-  //     chatBox.scrollTop = chatBox.scrollHeight;
-  //   }
-  //   //chatId sender time content
-  // };
-  // req.onerror = function (e) {
-  //   console.log(e.target.error);
-  // };
-
-  // axios({
-  //   method: "GET",
-  //   url: `/api/v1/messages/${chatId}`,
-  // }).then((res) => {
-  //   var msgs = "";
-  //   console.log(res);
-  //   var data = res.data.messages;
-  //   for (let i = 0; i < data.length; i++) {
-  //     msgs += `<div class="massage ${
-  //       data[i].sender.username ==
-  //       e.target.childNodes[3].childNodes[1].firstElementChild.innerText
-  //    //     ? "friendMassage"
-  //         : "myMassage"
-  //     }">
-  //                     <p> ${data[i].content}<br> <span>${new Date(
-  //       Date.parse(data[i].time)///1234    890
-  //     ).toLocaleString("en-EG", {
-  //       hour12: true,
-  //       hour: "numeric",
-  //       minute: "2-digit",
-  //     })}</span></p>
-  //                    </div>`;
-  //   }
-  //   chatBox.innerHTML = msgs;
-  //   chatBox.scrollTop = chatBox.scrollHeight;
-  // });
 
   $("#chatHide").fadeIn(1000);
   $("#requests-friend").fadeOut(1000);
@@ -535,7 +480,7 @@ $("#exit").click(function () {
 var reqBod = document.getElementById('reqBod');
 Reqs.addEventListener('click',(e)=>{
   e.preventDefault();
-
+  reqBod.innerHTML="";
   axios({
     method: "GET",
     url: "/api/v1/users/requests",
@@ -546,16 +491,45 @@ Reqs.addEventListener('click',(e)=>{
      reqBod.innerHTML+=` <tr>
       <td class="pt-3" >${res.data.requests[i].username}</td>
       <td class="action-request d-flex justify-content-center align-items-center">
-          <div class="iconR">
-              <i class="fa-solid fa-check"></i>
+          <div class="iconR accept"id="${res.data.requests[i]._id}-accept">
+              <i class="fa-solid fa-check disabled" ></i>
+              
           </div>
-          <div class="iconR">
-              <i class="fa-solid fa-xmark"></i>
+          <div class="iconR reject" id="${res.data.requests[i]._id}-reject">
+              <i class="fa-solid fa-xmark disabled"></i>
           </div>
       </td>
   </tr>`
+  
     }
+    handleFriendReq();
   }).catch(e=>{
     console.log(e)
   })
 })
+function handleFriendReq(){
+resBtn = document.querySelectorAll('.accept, .reject')
+resBtn.forEach((btn)=>{
+  btn.addEventListener('click',(e)=>{
+    e.preventDefault();
+    console.log(e.target.id.split('-')[0],e.target.id.split('-')[1])
+    let data={ request:e.target.id.split('-')[0]};
+    e.target.id.split('-')[1]=='accept'?data.respond=true:data.respond=false;
+    console.log(data)
+    
+    axios({
+      method: "POST",
+      url: "/api/v1/users/requests",
+      data
+    }).then(res=>{
+      console.log(res)
+      if(res.data.status=='Success'){
+        window.location.reload();
+      }
+    }).catch(e=>{
+      console.log(e)
+      alert(e.response.data.message)
+    })
+  })
+})
+}
