@@ -1,6 +1,7 @@
 const socketio = require("socket.io");
 const authcontroller = require("./authController");
 const Chat = require("../Models/chatsModel");
+const User = require("../Models/userModel");
 const mongoose = require("mongoose");
 const os = require("os");
 
@@ -8,10 +9,12 @@ exports.handelSockets = (server) => {
   const io = socketio(server);
 
   io.on("connection", async(socket) => {
-    const curntUserToken = socket.handshake.headers.cookie.split("=")[1];
+    const curntUserToken = socket.handshake.headers.cookie?.split("=")[1];
     const userobj= await authcontroller.checkToken(curntUserToken)
     const userId=userobj.id
     socket.join(userId)
+    await User.findByIdAndUpdate(userId, {status:'online'})
+    console.log("user now online");
     // const networkInterfaces = os.networkInterfaces();
     // const firstInterface = networkInterfaces[Object.keys(networkInterfaces)[0]];
     // const macAddress = firstInterface[0].mac;
@@ -19,11 +22,10 @@ exports.handelSockets = (server) => {
     socket.on("join", (chatId) => {
       // joining user to the clicked chat
       socket.join(chatId);
-      //calculate privte public
-
       console.log("user joined ", chatId);
     });
-    socket.on("disconnect", () => {
+    socket.on("disconnect",async () => {
+      await User.findByIdAndUpdate(userId, {status:'offline'})
       console.log("user disconnected");
     });
     

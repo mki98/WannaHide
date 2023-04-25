@@ -42,12 +42,12 @@
                       </div>
                       <div class="profile  d-flex align-content-sm-center" id="img-menu">
                         <div class="img-profile  position-relative">
-                            <img src="../img/<%= locals.user.photo %>" alt="background">
+                            <img src="../img/<%= locals.user?.photo %>" alt="background">
                             <div class="sub-menu-wrap  position-absolute" id="menu">
                                 <div class="sub-menu ">
                                     <div class="user-info d-flex align-items-center ">
-                                        <img src="../img/default.png" alt="" >
-                                        <h2 >Abdel-Rahmen Fathy</h2>
+                                        <img src="../img/<%= locals.user?.photo %>" alt="" >
+                                        <h2 ><%= locals.user?.username %></h2>
                                     </div>
                                     <hr>
                                     <a href="#" class="sub-menu-links" id="setting">
@@ -58,7 +58,7 @@
                                         <i class="fa-solid fa-circle-question"></i>                                            
                                         <p>Help & Support</p>
                                     </a>
-                                    <a href="#" class="sub-menu-links">
+                                    <a href="/logout" class="sub-menu-links">
                                         <i class="fa-solid fa-arrow-right-from-bracket"></i>                                            
                                         <p>Log Out</p>
                                     </a>
@@ -192,9 +192,9 @@
                                     <div class="user-profile  ">
                                         <div>
                                             <div class="user-avatar text-center">
-                                                <img src="../img/default.png" alt="Maxwell Admin">
+                                                <img src="../img/<%= locals.user?.photo %>" alt="Maxwell Admin">
                                             </div>
-                                            <h5 class="user-name">Abdel-Rahman Fathy</h5>
+                                            <h5 class="user-name"><%= locals.user?.username %></h5>
                                         </div>
                                     </div>
                                 </div>
@@ -208,10 +208,11 @@
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                         <h6 class="mb-2 mt-3" style="color: #A74B94;">Change Password</h6>
                                     </div>
+                                  <form id="update-pass"> 
                                     <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group ">
                                             <label for="eMail">old password</label>
-                                            <input type="password" class="form-control" id="eMail" placeholder="Enter old password" readonly>
+                                            <input type="password" class="form-control" id="eMail" placeholder="Enter old password" >
                                         </div>
                                     </div>
                                     <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -230,11 +231,12 @@
                                 <div class="row gutters">
                                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                         <div class="text-right">
-                                            <button type="button" id="submit" name="submit" class="btn btn-secondary">Cancel</button>
+                                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('update-pass').reset()">Cancel</button>
                                             <button type="button" id="submit" name="submit" class="btn text-white" style="background-color: #A74B94;">Change Password</button>
                                         </div>
                                     </div>
                                 </div>
+                             </form>
                             </div>
                         </div>
                         </div>

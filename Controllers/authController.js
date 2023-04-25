@@ -176,7 +176,4 @@ exports.login = tryCatch(async (req, res) => {
     .json({ status: "Success", token, message: "Login Successful!" });
 });
 
-exports.logout = tryCatch((req, res) => {
-  res.clearCookie("jwt");
-  res.send("Loogedout");
-});
+

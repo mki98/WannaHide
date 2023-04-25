@@ -5,6 +5,10 @@ const axios = require('axios')
 exports.authUser = tryCatch((req, res) => {
   res.render("sign");
 });
+exports.logout =tryCatch((req, res) => {
+  res.clearCookie("jwt");
+  return res.redirect("/accounts");
+})
 exports.index = tryCatch((req, res) => {
   res.render("index");
 });
