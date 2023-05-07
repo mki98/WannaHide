@@ -49,8 +49,6 @@
 }
 .sub-menu-links:hover span{
   transform: translateX(5px);
-  color: ;
-
 }
 .sub-menu-links:hover p{
   font-weight: 600;
@@ -130,6 +128,7 @@
     height: 25px;
     padding: 3px 10px;
     display: none; 
+    margin-top: 10px;
   }
   .chat-contact {
     width: 100%;
@@ -140,6 +139,16 @@
     width: 35px;
     height: 35px;
     border-radius: 50%;
+  }
+  #user-status{
+    font-size: 14px;
+
+  }
+  .green{
+    color: green;
+  }
+  .red{
+    color: red;
   }
   /* Start Search */
   .searchName {

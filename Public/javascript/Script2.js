@@ -5,6 +5,7 @@ var menu = document.getElementById("menu");
 var setting = document.getElementById("setting");
 var profile = document.getElementById("profile");
 var addFriend = document.getElementById("addFriend");
+var userStatus = document.getElementById("user-status")
 var latestMessage;
 var time;
 var Reqs = document.getElementById("btn-request")
@@ -17,6 +18,10 @@ function deriveKey(key, msgNum) {
 }
 
 var socket = io();
+
+
+
+
 
 
 // request.onupgradeneeded = function(event) {
@@ -436,12 +441,43 @@ $("#addClick").click(function () {
       })
         .then((res) => {
           if (res.status == 200) {
-            alert(res.data.message);
+            setTimeout(()=>{
+              if(userStatus.classList.contains("green"))
+              {
+                console.log(" green");
+                userStatus.innerHTML=`${res.data.message}`;
+              }
+              else{
+                console.log("else green");
+                userStatus.classList.replace("red","green")
+                userStatus.innerHTML=`${res.data.message}`;
+              }
+            },2000)
+            setTimeout(()=>{
+              userStatus.innerHTML="";
+            },4000)
           }
         })
         .catch((err) => {
           console.log(err);
-          alert(err.response.data.message);
+          setTimeout(()=>{
+            if(userStatus.classList.contains("red"))
+              {
+                console.log("red");
+                userStatus.innerHTML=`${err.response.data.message}`;
+              }
+              else{
+                console.log("else red");
+                userStatus.classList.replace("green","red")
+                userStatus.innerHTML=`${err.response.data.message}`;
+              }
+          
+          },0)
+          setTimeout(()=>{
+            userStatus.innerHTML="";
+          
+          },4000)
+
         });
       e.target[0].value = "";
     }
