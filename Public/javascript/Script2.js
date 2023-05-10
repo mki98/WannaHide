@@ -1,16 +1,15 @@
 var chatWin = document.getElementById("chatNav");
 var chatBox = document.getElementById("chatBox");
 var formMessage = document.getElementById("formMessage");
-var menu = document.getElementById("menu");
-var setting = document.getElementById("setting");
-var profile = document.getElementById("profile");
 var addFriend = document.getElementById("addFriend");
 var userStatus = document.getElementById("user-status")
 var latestMessage;
 var time;
-var Reqs = document.getElementById("btn-request")
+var Reqs = document.getElementById("btn-request");
+const contacts = document.getElementsByName("contacts");
 import { openDatabase, storeKeys } from "./indexDB.js";
 import { generateSharedKey } from "./keyGen.js";
+
 var resBtn;
 
 function deriveKey(key, msgNum) {
@@ -19,14 +18,9 @@ function deriveKey(key, msgNum) {
 
 var socket = io();
 
-
-
-
-
-
 // request.onupgradeneeded = function(event) {
 //   var db = event.target.result;
-  
+
 //   // Create a store called "keys" with a keypath called "id"
 //   var store = db.createObjectStore('messages', { keyPath: 'id',autoIncrement:true });
 // };
@@ -64,33 +58,35 @@ $("#contactClick").click(function () {
 
 let chatId = "";
 let currentId = formMessage.childNodes[1].childNodes[5].attributes[1].value;
-console.log(currentId);
 $(".contact").click(async (e) => {
   chatId = e.target.id;
   let otherUser = e.target.childNodes[3].childNodes[1].childNodes[1].innerText;
-
-  var request = indexedDB.open('User', 1);
-
-  request.onupgradeneeded = function(event) {
-    var db = event.target.result;
+  //! Add mongo db call to sync this indexed db with it 
+  //!and decrrypt the messages from mongo and add it to the chat
+  //! change message status to read
   
+  var request = indexedDB.open("User", 1);
+
+  request.onupgradeneeded = function (event) {
+    var db = event.target.result;
+
     // Create a "users" store with a keypath called "id"
-    var store = db.createObjectStore('keys', { keyPath: 'id' });
+    var store = db.createObjectStore("keys", { keyPath: "id" });
   };
-  
-  request.onsuccess = async function(event) {
+
+  request.onsuccess = async function (event) {
     var db = event.target.result;
-  
+
     // Get a reference to the "users" store
-    var transaction = db.transaction('keys', 'readwrite');
-    var store = transaction.objectStore('keys');
-  
+    var transaction = db.transaction("keys", "readwrite");
+    var store = transaction.objectStore("keys");
+
     // Get the user with the specified ID
     var request = await store.get(chatId);
-  
-    request.onsuccess = function(event) {
+
+    request.onsuccess = function (event) {
       var chat = event.target.result;
-  
+
       if (!chat) {
         // User not found, create a new user object
         axios({
@@ -98,34 +94,37 @@ $(".contact").click(async (e) => {
           url: `/api/v1/users/${otherUser}`,
         }).then(async (res) => {
           var OtherPublicKey = res.data.User[0].publicKey;
-          var transaction = db.transaction('keys', 'readwrite');
-          var store = transaction.objectStore('keys');
+          var transaction = db.transaction("keys", "readwrite");
+          var store = transaction.objectStore("keys");
           var privReq = await store.get(currentId);
-          privReq.onsuccess=async function(e){
-          let PrivKey = e.target.result.privateKey;
-          var sharedKey = generateSharedKey(BigInt(OtherPublicKey), PrivKey);
-          await store.put({ id: chatId, sharedKey, localCount: 0, remoteCount: 0 });
+          privReq.onsuccess = async function (e) {
+            let PrivKey = e.target.result.privateKey;
+            var sharedKey = generateSharedKey(BigInt(OtherPublicKey), PrivKey);
+            await store.put({
+              id: chatId,
+              sharedKey,
+              localCount: 0,
+              remoteCount: 0,
+            });
+          };
+        });
 
-        }
-      })
-  
-  
-        console.log('New user object created');
-      } 
+        console.log("New user object created");
+      }
     };
-  
-    request.onerror = function(event) {
-      console.error('Error retrieving user:', event.target.error);
+
+    request.onerror = function (event) {
+      console.error("Error retrieving user:", event.target.error);
     };
-  
-  };
-  
-  request.onerror = function(event) {
-    console.error('Error opening database:', event.target.error);
   };
 
-  
+  request.onerror = function (event) {
+    console.error("Error opening database:", event.target.error);
+  };
+
+
   //join clicked chat
+  console.log("clicked chat", chatId);
   socket.emit("join", chatId);
   latestMessage = e.target.childNodes[3].childNodes[3];
 
@@ -137,64 +136,65 @@ $(".contact").click(async (e) => {
                                             <h4>${e.target.childNodes[3].childNodes[1].firstElementChild.innerText} <br> <span>online</span></h4>
                                         </div>`;
 
-  let Chatsdb = indexedDB.open("Chats",2)
-    // Open the "chats" database with a version number of 1
+  let Chatsdb = indexedDB.open("Chats", 2);
+  // Open the "chats" database with a version number of 1
   // var request = indexedDB.open('Chats', 1);
 
-  Chatsdb.onupgradeneeded = function(event) {
+  Chatsdb.onupgradeneeded = function (event) {
     let db = event.target.result;
     let store;
     // Create a "messages" store with an autoincremented keypath
-    if(!db.objectStoreNames.contains("messages")){
-    store = db.createObjectStore('messages', { keypath:"id",autoIncrement: true });
-    }else{
-      store= event.target.transaction.objectStore("messages");
-      
+    if (!db.objectStoreNames.contains("messages")) {
+      store = db.createObjectStore("messages", {
+        keypath: "id",
+        autoIncrement: true,
+      });
+    } else {
+      store = event.target.transaction.objectStore("messages");
     }
     // Create a "chatId" index
     store.createIndex("chatId", "chatId", { unique: false });
   };
 
-  Chatsdb.onsuccess = function(event) {
+  Chatsdb.onsuccess = function (event) {
     let db = event.target.result;
 
     // Add the new message to the "messages" store
-    let transaction = db.transaction('messages', 'readonly');
-    let messageStore = transaction.objectStore('messages');
+    let transaction = db.transaction("messages", "readonly");
+    let messageStore = transaction.objectStore("messages");
     const index = messageStore.index("chatId");
     const query = index.openCursor(IDBKeyRange.only(chatId));
-  
+
     // Loop through the results and log each document
     let msgs = "";
     query.onsuccess = (event) => {
       const cursor = event.target.result;
       if (cursor) {
-
         msgs += `<div class="massage ${
-                  cursor.value.senderId == currentId ? "myMassage" : "friendMassage"
-                }">
-                                      <p> ${cursor.value.content}<br> <span>${new Date(
-                  Date.parse(cursor.value?.time) ///1234    890
-                ).toLocaleString("en-EG", {
-                  hour12: true,
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}</span></p>
+          cursor.value.senderId == currentId ? "myMassage" : "friendMassage"
+        }">
+                                      <p> ${
+                                        cursor.value.content
+                                      }<br> <span>${new Date(
+          Date.parse(cursor.value?.time) ///1234    890
+        ).toLocaleString("en-EG", {
+          hour12: true,
+          hour: "numeric",
+          minute: "2-digit",
+        })}</span></p>
                                      </div>`;
-        console.log(cursor.value);
         cursor.continue();
       }
-      transaction.oncomplete = function(event) {
+      transaction.oncomplete = function (event) {
         chatBox.innerHTML = msgs;
         chatBox.scrollTop = chatBox.scrollHeight;
-        console.log('Retrived Local Messages');
+        console.log("Retrived Local Messages");
       };
     };
-  }
-  Chatsdb.onerror = function(event) {
-    console.error('Error opening database:', event.target.error);
   };
-
+  Chatsdb.onerror = function (event) {
+    console.error("Error opening database:", event.target.error);
+  };
 
   $("#chatHide").fadeIn(1000);
   $("#requests-friend").fadeOut(1000);
@@ -211,208 +211,237 @@ if (formMessage) {
   formMessage.addEventListener("submit", async (e) => {
     e.preventDefault();
     currentId = e.target[1].attributes.sender.value;
-    console.log(currentId);
     let content = e.target[1].value;
-    console.log("contetn",content);
     if (content) {
-      var request = indexedDB.open('User', 1);
-      request.onsuccess=async function(e){
-      let db = e.target.result;
-      let store = await db.transaction("keys", "readwrite").objectStore("keys");
-      let req = await store.get(chatId);
-      req.onsuccess = async function (e) {
-        //sender
-        //encrypt message
-        let localCount = e.target.result.localCount;
-        let sharedKey = e.target.result.sharedKey;
-        let ratchetKey = deriveKey(sharedKey, localCount);
-        let encMess = encrypt(content, ratchetKey);
-        //send Encrypted message to other user
-        socket.emit("chat msg", encMess, chatId, currentId);
-        console.log("encrypted message", encMess);
-        //display message on screen
+      var request = indexedDB.open("User", 1);
+      request.onsuccess = async function (e) {
+        let db = e.target.result;
+        let store = await db
+          .transaction("keys", "readwrite")
+          .objectStore("keys");
+        let req = await store.get(chatId);
+        req.onsuccess = async function (e) {
+          //sender
+          //encrypt message
+          let localCount = e.target.result.localCount;
+          let sharedKey = e.target.result.sharedKey;
+          let ratchetKey = deriveKey(sharedKey, localCount);
+          let encMess = encrypt(content, ratchetKey);
+          //send Encrypted message to other user
+          socket.emit("chat msg", encMess, chatId, currentId);
+          console.log("encrypted message", encMess);
+          //display message on screen
 
-        var msgHtml = ` <div class="massage myMassage" >
+          var msgHtml = ` <div class="massage myMassage" >
         <p> ${content}<br> <span>${new Date(Date.now()).toLocaleString(
-          "en-EG",
-          {
+            "en-EG",
+            {
+              hour12: true,
+              hour: "numeric",
+              minute: "2-digit",
+            }
+          )}</span></p>
+       </div> `;
+          console.log(content);
+          chatBox.innerHTML += msgHtml;
+          chatBox.scrollTop = chatBox.scrollHeight;
+          latestMessage.innerHTML = `<p>${content}</p>`;
+          time.innerText = `${new Date(Date.now()).toLocaleString("en-EG", {
             hour12: true,
             hour: "numeric",
             minute: "2-digit",
-          }
-        )}</span></p>
-       </div> `;
-       console.log(content);
-        chatBox.innerHTML += msgHtml;
-        chatBox.scrollTop = chatBox.scrollHeight;
-        latestMessage.innerHTML = `<p>${content}</p>`;
-        time.innerText = `${new Date(Date.now()).toLocaleString("en-EG", {
-          hour12: true,
-          hour: "numeric",
-          minute: "2-digit",
-        })}`;
-        let addLoc = await db
-          .transaction("keys", "readwrite")
-          .objectStore("keys");
-        let addReq = await addLoc.get(chatId);
-        addReq.onsuccess = function (e) {
-          let data = e.target.result;
-          data.localCount = data.localCount + 1;
-          let updateRem = addLoc.put(data);
-          updateRem.onsuccess = function (e) {
-            console.log(e);
+          })}`;
+          let addLoc = await db
+            .transaction("keys", "readwrite")
+            .objectStore("keys");
+          let addReq = await addLoc.get(chatId);
+          addReq.onsuccess = function (e) {
+            let data = e.target.result;
+            data.localCount = data.localCount + 1;
+            let updateRem = addLoc.put(data);
+            updateRem.onsuccess = function (e) {
+              console.log(e);
+            };
           };
+          addReq.onerror = function (e) {
+            console.log(e.target.error);
+          };
+          // Open the "chats" database with a version number of 1
+          var request = indexedDB.open("Chats", 2);
+
+          request.onupgradeneeded = function (event) {
+            var db = event.target.result;
+
+            // Create a "messages" store with an autoincremented keypath
+            var store = db.createObjectStore("messages", {
+              keypath: "id",
+              autoIncrement: true,
+            });
+          };
+
+          request.onsuccess = function (event) {
+            var db = event.target.result;
+
+            // Add the new message to the "messages" store
+            var transaction = db.transaction("messages", "readwrite");
+            var store = transaction.objectStore("messages");
+            var message = {
+              content: content,
+              senderId: currentId,
+              chatId: chatId,
+              time: new Date(Date.now()),
+            };
+            store.add(message);
+
+            transaction.oncomplete = function (event) {
+              console.log("Message added to database:", message);
+            };
+          };
+
+          request.onerror = function (event) {
+            console.error("Error opening database:", event.target.error);
+          };
+
+          // e.target[0].value = "";
+
+          // axios({
+          //   method: "POST",
+          //   url: `/api/v1/messages`,
+
+          //   data: {
+          //     content,
+          //     chat: chatId,
+          //   },
+          // }).then((res) => {
+          //   console.log(res);
+          // });
         };
-        addReq.onerror = function (e) {
+        req.onerror = function (e) {
           console.log(e.target.error);
         };
-        // Open the "chats" database with a version number of 1
-      var request = indexedDB.open('Chats', 2);
-
-    request.onupgradeneeded = function(event) {
-      var db = event.target.result;
-
-      // Create a "messages" store with an autoincremented keypath
-      var store = db.createObjectStore('messages', { keypath:"id",autoIncrement: true });
-    };
-
-    request.onsuccess = function(event) {
-      var db = event.target.result;
-
-      // Add the new message to the "messages" store
-      var transaction = db.transaction('messages', 'readwrite');
-      var store = transaction.objectStore('messages');
-      var message = { content: content, senderId: currentId, chatId:chatId,time: new Date(Date.now()) };
-      store.add(message);
-
-      transaction.oncomplete = function(event) {
-        console.log('Message added to database:', message);
       };
-    };
-
-    request.onerror = function(event) {
-      console.error('Error opening database:', event.target.error);
-    };
-
-        // e.target[0].value = "";
-
-        // axios({
-        //   method: "POST",
-        //   url: `/api/v1/messages`,
-
-        //   data: {
-        //     content,
-        //     chat: chatId,
-        //   },
-        // }).then((res) => {
-        //   console.log(res);
-        // });
-      };
-      req.onerror = function (e) {
-        console.log(e.target.error);
-      };
-        }  }
+    }
   });
-
 }
 //reciver
 function decrypt(enc, ratchetKey) {
   const cipher = CryptoJS.AES.decrypt(enc, ratchetKey);
   return cipher.toString(CryptoJS.enc.Utf8);
 }
-socket.on("chatMsg", async (enc, chatId, senderId) => {
+socket.on("chatMsg", async (enc, chatID, senderId) => {
   //decrypt the message
   if (senderId !== currentId) {
     // alert(`u r ${currentId},other person ${senderId }`)
     //when not joined
 
-    
+
     let remoteCount;
     let sharedKey;
-    console.log("reciver")
-    var request = indexedDB.open('User', 1);
-    request.onsuccess=async function(e){
-    let db = e.target.result;
-    let store = await db.transaction("keys", "readwrite").objectStore("keys");
-    let req = await store.get(chatId);
-    req.onsuccess = async function (e) {
-      remoteCount = e.target.result.remoteCount;
-      sharedKey = e.target.result.sharedKey;
+    console.log("reciver");
+    var request = indexedDB.open("User", 1);
+    request.onsuccess = async function (e) {
+      let db = e.target.result;
+      let store = await db.transaction("keys", "readwrite").objectStore("keys");
+      let req = await store.get(chatID);
+      req.onsuccess = async function (e) {
+        remoteCount = e.target.result.remoteCount;
+        sharedKey = e.target.result.sharedKey;
 
-      let ratchetKey = deriveKey(sharedKey, remoteCount);
-      let msg =   decrypt(enc, ratchetKey);
-      console.log(decrypt(enc, ratchetKey));
-      console.log("jdijdijijijij",msg, chatId, senderId);
-      //get chat and update remote count value
-      let keysdb = await openDatabase("User", 1);
-      let keysObj = await keysdb
-        .transaction("keys", "readwrite")
-        .objectStore("keys");
-      let keysReq = await keysObj.get(chatId);
-      keysReq.onsuccess =async  function (e) {
-        let data = e.target.result;
-        data.remoteCount++;
-        // let keysdb = await openDatabase("User", 1);
-        //  let keysObj = await keysdb
-        // .transaction("keys", "readwrite")
-        // .objectStore("keys");
-        // let updateRem = await keysObj.put(data);
-        // updateRem.onsuccess = function (e) {
-        //   console.log(e);
-        // };
-      };
-      var msgHtml = ` <div class="massage ${
-        senderId == currentId ? "myMassage" : "friendMassage"
-      } ">
+        let ratchetKey = deriveKey(sharedKey, remoteCount);
+        let msg = decrypt(enc, ratchetKey);
+        console.log(decrypt(enc, ratchetKey));
+        console.log("jdijdijijijij", msg, chatID, senderId);
+        //get chat and update remote count value
+        let keysdb = await openDatabase("User", 1);
+        let keysObj = await keysdb
+          .transaction("keys", "readwrite")
+          .objectStore("keys");
+        let keysReq = await keysObj.get(chatID);
+        keysReq.onsuccess = async function (e) {
+          let data = e.target.result;
+          data.remoteCount++;
+          // let keysdb = await openDatabase("User", 1);
+          //  let keysObj = await keysdb
+          // .transaction("keys", "readwrite")
+          // .objectStore("keys");
+          // let updateRem = await keysObj.put(data);
+          // updateRem.onsuccess = function (e) {
+          //   console.log(e);
+          // };
+        };
+        var msgHtml = ` <div class="massage ${
+          senderId == currentId ? "myMassage" : "friendMassage"
+        } ">
   <p> ${msg}<br> <span>${new Date(Date.now()).toLocaleString("en-EG", {
-        hour12: true,
-        hour: "numeric",
-        minute: "2-digit",
-      })}</span></p>
+          hour12: true,
+          hour: "numeric",
+          minute: "2-digit",
+        })}</span></p>
  </div> `;
-      chatBox.innerHTML += msgHtml;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      latestMessage.innerHTML = `<p>${msg}</p>`;
-      time.innerText = `${new Date(Date.now()).toLocaleString("en-EG", {
-        hour12: true,
-        hour: "numeric",
-        minute: "2-digit",
-      })}`;
+        chatBox.innerHTML += msgHtml;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        latestMessage.innerHTML = `<p>${msg}</p>`;
+        time.innerText = `${new Date(Date.now()).toLocaleString("en-EG", {
+          hour12: true,
+          hour: "numeric",
+          minute: "2-digit",
+        })}`;
 
-      // Open the "chats" database with a version number of 1
-      var request = indexedDB.open('Chats', 2);
+        // Open the "chats" database with a version number of 1
+        var request = indexedDB.open("Chats", 2);
 
-      request.onupgradeneeded = function(event) {
-        var db = event.target.result;
+        request.onupgradeneeded = function (event) {
+          var db = event.target.result;
 
-        // Create a "messages" store with an autoincremented keypath
-        var store = db.createObjectStore('messages', { keyPath:"id",autoIncrement: true });
-      };
+          // Create a "messages" store with an autoincremented keypath
+          var store = db.createObjectStore("messages", {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+        };
 
-      request.onsuccess = function(event) {
-        var db = event.target.result;
+        request.onsuccess = function (event) {
+          var db = event.target.result;
 
-        // Add the new message to the "messages" store
-        var transaction = db.transaction('messages', 'readwrite');
-        var store = transaction.objectStore('messages');
-        var message = { content: msg, senderId: senderId, chatId:chatId,time:new Date( Date.now() )};
-        store.add(message);
+          // Add the new message to the "messages" store
+          var transaction = db.transaction("messages", "readwrite");
+          var store = transaction.objectStore("messages");
+          var message = {
+            content: msg,
+            senderId: senderId,
+            chatId: chatID,
+            time: new Date(Date.now()),
+          };
+          store.add(message);
 
-        transaction.oncomplete = function(event) {
-          console.log('Message added to database:', message);
+          transaction.oncomplete = function (event) {
+            console.log("Message added to database:", message);
+          };
+        };
+
+        request.onerror = function (event) {
+          console.error("Error opening database:", event.target.error);
         };
       };
-
-      request.onerror = function(event) {
-        console.error('Error opening database:', event.target.error);
-      };
-
     };
-  }}
 });
-socket.on("awayMsg", async (enc, currentId, senderId,chatId) => {
-  alert(`message ${enc}from ${senderId} because u ${currentId} is away`)
-})
+socket.on("awayMsg", async (enc, currentId, senderId, chatID) => {
+  alert(`message ${enc}from ${senderId} because u ${currentId} is away`);
+  console.log(contacts);
+  let chat;
+  for(var i=0;i<contacts.length;i++){
+    if(contacts[i].id == chatID){
+      chat = contacts[i];
+      break;
+    }
+  }
+  //!save it to mongoDB 
+  //!change latest message in mongo to this message 
+  //!change the order and make it at the top of chats
+  //!add unread icon to it 
+
+  
+});
 $("#img-menu").click(function () {
   $("#menu").slideToggle(1000);
 });
@@ -506,25 +535,18 @@ $("#exit").click(function () {
   $(".boximage").css({ display: "none" });
 });
 
-
-
-
-
-
-
-
-var reqBod = document.getElementById('reqBod');
-Reqs.addEventListener('click',(e)=>{
+var reqBod = document.getElementById("reqBod");
+Reqs.addEventListener("click", (e) => {
   e.preventDefault();
-  reqBod.innerHTML="";
+  reqBod.innerHTML = "";
   axios({
     method: "GET",
     url: "/api/v1/users/requests",
-    
-  }).then(res=>{
-   console.log(res)
-    for(var i=0;i<res.data.requests.length;i++){
-     reqBod.innerHTML+=` <tr>
+  })
+    .then((res) => {
+      console.log(res);
+      for (var i = 0; i < res.data.requests.length; i++) {
+        reqBod.innerHTML += ` <tr>
       <td class="pt-3" >${res.data.requests[i].username}</td>
       <td class="action-request d-flex justify-content-center align-items-center">
           <div class="iconR accept"id="${res.data.requests[i]._id}-accept">
@@ -535,37 +557,41 @@ Reqs.addEventListener('click',(e)=>{
               <i class="fa-solid fa-xmark disabled"></i>
           </div>
       </td>
-  </tr>`
-  
-    }
-    handleFriendReq();
-  }).catch(e=>{
-    console.log(e)
-  })
-})
-function handleFriendReq(){
-resBtn = document.querySelectorAll('.accept, .reject')
-resBtn.forEach((btn)=>{
-  btn.addEventListener('click',(e)=>{
-    e.preventDefault();
-    console.log(e.target.id.split('-')[0],e.target.id.split('-')[1])
-    let data={ request:e.target.id.split('-')[0]};
-    e.target.id.split('-')[1]=='accept'?data.respond=true:data.respond=false;
-    console.log(data)
-    
-    axios({
-      method: "POST",
-      url: "/api/v1/users/requests",
-      data
-    }).then(res=>{
-      console.log(res)
-      if(res.data.status=='Success'){
-        window.location.reload();
+  </tr>`;
       }
-    }).catch(e=>{
-      console.log(e)
-      alert(e.response.data.message)
+      handleFriendReq();
     })
-  })
-})
+    .catch((e) => {
+      console.log(e);
+    });
+});
+function handleFriendReq() {
+  resBtn = document.querySelectorAll(".accept, .reject");
+  resBtn.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log(e.target.id.split("-")[0], e.target.id.split("-")[1]);
+      let data = { request: e.target.id.split("-")[0] };
+      e.target.id.split("-")[1] == "accept"
+        ? (data.respond = true)
+        : (data.respond = false);
+      console.log(data);
+
+      axios({
+        method: "POST",
+        url: "/api/v1/users/requests",
+        data,
+      })
+        .then((res) => {
+          console.log(res);
+          if (res.data.status == "Success") {
+            window.location.reload();
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+          alert(e.response.data.message);
+        });
+    });
+  });
 }
