@@ -424,6 +424,7 @@ socket.on("chatMsg", async (enc, chatID, senderId) => {
         };
       };
     };
+  }
 });
 socket.on("awayMsg", async (enc, currentId, senderId, chatID) => {
   alert(`message ${enc}from ${senderId} because u ${currentId} is away`);
