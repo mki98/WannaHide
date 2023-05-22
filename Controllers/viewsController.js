@@ -19,7 +19,7 @@ exports.chat = tryCatch(async(req, res) => {
   if (!user) {
     return res.redirect("/accounts");
   }
-  const chats = await Chats.find({ users: res.locals.user._id }).populate('users');
+  const chats = await Chats.find({ users: res.locals.user._id }).populate('users').sort({updatedAt:-1});
   const requests = user.requests.length;
   res.render("chat", { user , chats,requests });
 });

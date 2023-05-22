@@ -3,17 +3,26 @@ const authcontroller = require("./authController");
 const Chat = require("../Models/chatsModel");
 const User = require("../Models/userModel");
 const mongoose = require("mongoose");
-const os = require("os");
+const Messages = require("../Models/messageModel");
 
 exports.handelSockets = (server) => {
   const io = socketio(server);
 
   io.on("connection", async (socket) => {
+    socket.send("hi",()=>{
+      console.log("hi");
+      
+    })
     const curntUserToken = socket.handshake.headers.cookie?.split("=")[1];
     const userobj = await authcontroller.checkToken(curntUserToken);
+   if(!userobj)
+   {
+     return socket.disconnect();
+   }
     const userId = userobj.id;
     socket.join(userId);
     await User.findByIdAndUpdate(userId, { status: "online" });
+
     console.log("user now online");
     // const networkInterfaces = os.networkInterfaces();
     // const firstInterface = networkInterfaces[Object.keys(networkInterfaces)[0]];
@@ -48,14 +57,14 @@ exports.handelSockets = (server) => {
           return user;
         }
       });
-      console.log(otherUser.toString());
       console.log(socket.id);
       let roomUsersActive = io.sockets.adapter.rooms.get(chatId).size;
       console.log(io.sockets.adapter.rooms.get(chatId));
-
-      if (otherUser.status == "offline" || roomUsersActive == 1) {
+     const {status} =  await User.findById(otherUser.toString()).select("status -_id");
+      console.log(status)
+      if (status == "online" && roomUsersActive == 1) {
         //other is offline
-        console.log("other is offline");
+        console.log("other is away");
         io.in(otherUser.toString()).emit(
           "awayMsg",
           msg,
@@ -64,8 +73,27 @@ exports.handelSockets = (server) => {
           chatId
         );
       }
+      if(status =="offline" && roomUsersActive ==1){
+        console.log("user is offline")
+        const newMsg = await Messages.create({ sender: senderId, content: msg, chat: chatId });
+        console.log(newMsg,"Added to DB")
+      }
       console.log("message sent");
       io.in(chatId).emit("chatMsg", msg, chatId, senderId);
     });
+    socket.on("upload", (file,chatId,senderId) => {
+      // const blob = new Blob([file], {type: 'image/jpeg'});
+      // console.log(blob,"blob"); // <Buffer 25 50 44 ...>
+      // let img =  URL.createObjectURL(blob);
+      // let url=Buffer.from(file, 'binary').toString('base64')
+      console.log(file,"url")
+      io.in(chatId).emit("displayImg", file,chatId,senderId);
+      console.log("emitted blob")
+    })
+    socket.on("retrived",async (chatID)=>{
+     const delQue=  await Messages.deleteMany({chat:chatID})
+     console.log(delQue,"Deleted")
+    })
+
   });
 };
