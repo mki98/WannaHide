@@ -26,7 +26,7 @@ const generateToken = () => {
 };
 const sendVerfMail = async (...userdata) => {
 
-  sendMail(
+  await sendMail(
     userdata[0],
     "Confirm your signup",
     `Welcome ${userdata[1]} to complete your signup please click on the following link http://localhost:5000/confirm/${userdata[2]}`

@@ -63,7 +63,7 @@ signupBtn.addEventListener("click", async function (e) {
         email: email.value,
         password: password.value,
         passwordConfirm: passwordConfirm.value,
-        publicKey: `${user.publicKey}`,
+        publicKey: `${user.publicKey.toString()}`,
       },
     })
       .then(async (res) => {
@@ -72,7 +72,7 @@ signupBtn.addEventListener("click", async function (e) {
           console.log(user.publicKey);
           try {
              const db = await openDatabase("User",1,[{name:"keys",keyPath:"id"}])
-            await storeKeys(db,res.data.user._id,user.publicKey,user.privateKey)
+            await storeKeys(db,res.data.user._id,user.publicKey.toString(),user.privateKey.toString())
             console.log('finish store in indexed')
           }catch(e){console.log(e.message)}
           showAlert("success", res.data.message);

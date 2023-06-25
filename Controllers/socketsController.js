@@ -9,10 +9,7 @@ exports.handelSockets = (server) => {
   const io = socketio(server);
 
   io.on("connection", async (socket) => {
-    socket.send("hi",()=>{
-      console.log("hi");
-      
-    })
+    
     const curntUserToken = socket.handshake.headers.cookie?.split("=")[1];
     const userobj = await authcontroller.checkToken(curntUserToken);
    if(!userobj)
@@ -82,17 +79,11 @@ exports.handelSockets = (server) => {
       io.in(chatId).emit("chatMsg", msg, chatId, senderId);
     });
     socket.on("upload", (file,chatId,senderId) => {
-      // const blob = new Blob([file], {type: 'image/jpeg'});
-      // console.log(blob,"blob"); // <Buffer 25 50 44 ...>
-      // let img =  URL.createObjectURL(blob);
-      // let url=Buffer.from(file, 'binary').toString('base64')
-      console.log(file,"url")
+      console.log('in back',file)
       io.in(chatId).emit("displayImg", file,chatId,senderId);
-      console.log("emitted blob")
     })
     socket.on("retrived",async (chatID)=>{
      const delQue=  await Messages.deleteMany({chat:chatID})
-     console.log(delQue,"Deleted")
     })
 
   });

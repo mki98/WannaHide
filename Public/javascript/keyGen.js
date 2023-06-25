@@ -1,38 +1,122 @@
-/** Generates BigInts between low (inclusive) and high (exclusive) */
-function generateRandomBigInt(lowBigInt, highBigInt) {
-    if (lowBigInt >= highBigInt) {
-      throw new Error("lowBigInt must be smaller than highBigInt");
-    }
-  
-    const difference = highBigInt - lowBigInt; //10-1=9
-    const differenceLength = difference.toString().length;
-    let multiplier = "";
-    while (multiplier.length < differenceLength) {
-      multiplier += Math.random().toString().split(".")[1];
-    }
-    multiplier = multiplier.slice(0, differenceLength);
-    const divisor = "1" + "0".repeat(differenceLength);
-  
-    const randomDifference = (difference * BigInt(multiplier)) / BigInt(divisor);
-  
-    return lowBigInt + randomDifference;
-  } 
+
+
+
+export function getRandomBigInt(min, max) {
+  const range = max.subtract(min).subtract(BigInteger.ONE);
+  let bi;
+  do {
+    // Generate random bytes with the length of the range
+    // const buf =  CryptoJS.randomBytes(Math.ceil(range.bitLength() / 8));
+    const randomBytes = new Uint8Array(Math.ceil(range.bitLength() / 8));
+    const xi= window.crypto.getRandomValues(randomBytes)
+    
+    
+    bi = new BigInteger(xi.toString(),9).add(min);
+  } while (bi.compareTo(max) >= 0);
+
+  return bi;
+}
+
+
+const hexStringPrime = `FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1
+      29024E08 8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD
+      EF9519B3 CD3A431B 302B0A6D F25F1437 4FE1356D 6D51C245
+      E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED
+      EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE45B3D
+      C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8 FD24CF5F
+      83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D
+      670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B
+      E39E772C 180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9
+      DE2BCBF6 95581718 3995497C EA956AE5 15D22618 98FA0510
+      15728E5A 8AAAC42D AD33170D 04507A33 A85521AB DF1CBA64
+      ECFB8504 58DBEF0A 8AEA7157 5D060C7D B3970F85 A6E1E4C7
+      ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226 1AD2EE6B
+      F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C
+      BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31
+      43DB5BFC E0FD108E 4B82D120 A93AD2CA FFFFFFFF FFFFFFFF`
+
+const hexWithoutWhitespace = hexStringPrime.replace(/\s/g, "");
+
+const primeN =new BigInteger(hexWithoutWhitespace,16)
+const generator = new BigInteger("2")
 
 export class KeyPairs {
     constructor() {
-      this.primeN =
-        5809605995369958062791915965639201402176612226902900533702900882779736177890990861472094774477339581147373410185646378328043729800750470098210924487866935059164371588168047540943981644516632755067501626434556398193186628990071248660819361205119793693985433297036118232914410171876807536457391277857011849897410207519105333355801121109356897459426271845471397952675959440793493071628394122780510124618488232602464649876850458861245784240929258426287699705312584509625419513463605155428017165714465363094021609290561084025893662561222573202082865797821865270991145082200656978177192827024538990239969175546190770645685893438011714430426409338676314743571154537142031573004276428701433036381801705308659830751190352946025482059931306571004727362479688415574702596946457770284148435989129632853918392117997472632693078113129886487399347796982772784615865232621289656944284216824611318709764535152507354116344703769998514148343807n;
-      this.generator = 2n;
-      this.privateKey = generateRandomBigInt(this.generator, this.primeN - 2n);
-      this.publicKey = (this.generator ^ this.privateKey) % this.primeN;;
-    }
-    generateShared(publicOther){
-      const shared = (publicOther^this.privateKey) % this.primeN;
-      return shared;
+      this.privateKey = getRandomBigInt(generator, primeN.subtract(BigInteger.ONE));
+      this.publicKey = generator.modPow(this.privateKey, primeN);
     }
 }
-const primeN =
-        5809605995369958062791915965639201402176612226902900533702900882779736177890990861472094774477339581147373410185646378328043729800750470098210924487866935059164371588168047540943981644516632755067501626434556398193186628990071248660819361205119793693985433297036118232914410171876807536457391277857011849897410207519105333355801121109356897459426271845471397952675959440793493071628394122780510124618488232602464649876850458861245784240929258426287699705312584509625419513463605155428017165714465363094021609290561084025893662561222573202082865797821865270991145082200656978177192827024538990239969175546190770645685893438011714430426409338676314743571154537142031573004276428701433036381801705308659830751190352946025482059931306571004727362479688415574702596946457770284148435989129632853918392117997472632693078113129886487399347796982772784615865232621289656944284216824611318709764535152507354116344703769998514148343807n;
+
 export function generateSharedKey(OtherPublicKey,PrivKey){
- return  (OtherPublicKey^PrivKey)%primeN; 
+      OtherPublicKey=new BigInteger(OtherPublicKey)
+      PrivKey=new BigInteger(PrivKey)
+      const shared = OtherPublicKey.modPow(PrivKey,primeN)
+     return shared.toString()
+
+}
+
+
+
+
+
+
+
+
+
+export class Elgamal{
+
+  stringToHex(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  let hex = '';
+
+  for (let i = 0; i < data.length; i++) {
+    const byte = data[i].toString(16).padStart(2, '0');
+    hex += byte;
+  }
+
+  return hex;
+}
+//public key of reciver 
+ encryptGamal(m, pubKey) {
+  const tmpKey = getRandomBigInt(
+    BigInteger.ONE,
+    primeN.subtract(BigInteger.ONE)
+  );
+  const hexString = new BigInteger(this.stringToHex(m),16);
+  //2^k %primnumb
+  const a = generator.modPow(tmpKey, primeN);
+  
+//(pub^k %primnumb *m) %primnumb
+  const b = pubKey.modPow(tmpKey, primeN).multiply(hexString).remainder(primeN);
+  let bstr=b.toString()
+  let astr=a.toString()
+  return{astr,bstr}
+}
+
+
+//reciver only needs an object with a and b
+
+decryptGamal(m,privKey,pubKey) {
+
+  console.log(pubKey)
+  m.a = new BigInteger(m.astr)
+  m.b = new BigInteger(m.bstr)
+  const r =  getRandomBigInt(
+    generator,
+    primeN.subtract(BigInteger.ONE)
+  );
+  console.log('indecrypt');
+  console.log(m.a)
+  const decoder = new TextDecoder();
+  const aBlind = generator.modPow(r, primeN).multiply(m.a).remainder(primeN);
+  const ax = aBlind.modPow(privKey, primeN);
+
+  const plaintextBlind = ax.modInverse(primeN).multiply(m.b).remainder(primeN);
+  const plaintext = pubKey.modPow(r, primeN).multiply(plaintextBlind).remainder(primeN);
+  console.log(plaintext)
+  const plainer = decoder.decode(new Uint8Array(plaintext.toByteArray()));
+  console.log(plainer)
+  return plainer;
+}
 }
