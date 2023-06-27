@@ -431,40 +431,7 @@ socket.on("chatMsg", async (enc, chatID, senderId) => {
     // alert(`u r ${currentId},other person ${senderId }`)
     //when not joined
 
-    let remoteCount;
-    let sharedKey;
-    console.log("reciver");
-    var request = indexedDB.open("User", 1);
-    request.onsuccess = async function (e) {
-      let db = e.target.result;
-      let store = await db.transaction("keys", "readwrite").objectStore("keys");
-      if(!myPubKey){
-      let reqPub= await store.get(currentId);
-      reqPub.onsuccess = async function (e) {
-        let data = e.target.result;
-        console.log(data.publicKey)
-        myPubKey=data.publicKey;
-        myPrivKey=data.privateKey;
-      }
-      }
-      let req = await store.get(chatID);     
-      req.onsuccess = async function (e) {
-        remoteCount = e.target.result.remoteCount;
-        console.log("remoteCount", remoteCount);
-        sharedKey = e.target.result.sharedKey;
-        //modified by 1
-        let ratchetKey = deriveKey(sharedKey, remoteCount);
-        // let msg = decrypt(enc, ratchetKey);
-        let msg = Elgamal.prototype.decryptGamal(enc,new BigInteger(myPrivKey),new BigInteger(myPubKey));
-        console.log(enc);
-        console.log(msg);
 
-        //get chat and update remote count value
-        await increaseRemote(chatID);
-        let msgHtml = htmlMessage(senderId, msg);
-        displayMessage(msgHtml, msg, senderId, chatID);
-      };
-    };
   }
 });
 let messageCount = 0;
@@ -707,22 +674,35 @@ function storeMessageInLocDB(msg, senderId, chatID) {
 }
 
 async function ReciverMessage(enc, chatID, senderId) {
+
   let remoteCount;
   let sharedKey;
   var request = indexedDB.open("User", 1);
   request.onsuccess = async function (e) {
     let db = e.target.result;
     let store = await db.transaction("keys", "readwrite").objectStore("keys");
+    if(!myPubKey){
+      let reqPub= await store.get(currentId);
+      reqPub.onsuccess = async function (e) {
+        let data = e.target.result;
+        console.log(data.publicKey)
+        myPubKey=data.publicKey;
+        myPrivKey=data.privateKey;
+      }
+    }
     let req = await store.get(chatID);
     req.onsuccess = async function (e) {
       remoteCount = e.target.result.remoteCount;
+      console.log("remoteCount", remoteCount);
       sharedKey = e.target.result.sharedKey;
       //modified by 1
       let ratchetKey = deriveKey(sharedKey, remoteCount);
-      let msg = decrypt(enc, ratchetKey);
-      console.log(decrypt(enc, ratchetKey));
+      // let msg = decrypt(enc, ratchetKey);
+      let msg = Elgamal.prototype.decryptGamal(enc,new BigInteger(myPrivKey),new BigInteger(myPubKey));
+      console.log(enc);
+      console.log(msg);
       //get chat and update remote count value
-     await increaseRemote(chatID);
+      await increaseRemote(chatID);
       let msgHtml = htmlMessage(senderId, msg);
       displayMessage(msgHtml, msg, senderId, chatID);
     };
