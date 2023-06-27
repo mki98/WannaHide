@@ -430,7 +430,7 @@ socket.on("chatMsg", async (enc, chatID, senderId) => {
   if (senderId !== currentId) {
     // alert(`u r ${currentId},other person ${senderId }`)
     //when not joined
-
+    ReciverMessage(enc,chatID,senderId)
 
   }
 });
@@ -709,7 +709,7 @@ async function ReciverMessage(enc, chatID, senderId) {
   };
 }
 
-//decrypts the message without incresing the ratchit
+//decrypts the message without increasing the ratchet
 
 async function previewMsg(enc, chatID) {
   let remoteCount;
@@ -750,7 +750,7 @@ contacts.forEach((contact) => {
   endpoints.push(`api/v1/messages/${contact.id}`);
 });
 
-// Get mesages without joining chat
+// Get messages without joining chat
 axios.all(endpoints.map((endpoint) => axios.get(endpoint))).then((data) => {
   data.forEach((res) => {
     if (res.data.messages.length > 0) {
