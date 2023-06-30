@@ -21,6 +21,7 @@ exports.chat = tryCatch(async(req, res) => {
   }
   const chats = await Chats.find({ users: res.locals.user._id }).populate('users').sort({updatedAt:-1});
   const requests = user.requests.length;
+  console.log('chats ',chats[0]?.shared,chats[0]?._id)
   res.render("chat", { user , chats,requests });
 });
 

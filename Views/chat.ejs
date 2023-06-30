@@ -105,6 +105,7 @@
                                         <div class="details w-100 disabled ">
                                             <div class="name d-flex justify-content-between disabled">
                                                 <h4 ><%= otherUser?.username %></h4>
+                                                <span hidden id="sharedKey" value="<%= locals.chats[i]?.shared?.toString() %>"></span>
                                                 <% if(locals.chats[i].updatedAt) {%>
                                                 <p class="time disabled "><%= new Date(locals.chats[i].updatedAt).toLocaleString("en-EG",{hour12:true,hour:"numeric",minute:"2-digit"}) %></p>
                                                 <% } %>

@@ -1,16 +1,16 @@
 import { showAlert } from "./alerts.js";
 import { KeyPairs } from "./keyGen.js";
 import { openDatabase, storeKeys } from "./indexDB.js";
-var signupBtn = document.getElementById("signupBtn");
-var signinBtn = document.getElementById("signinBtn");
-var title = document.getElementById("title");
-var nameField = document.getElementById("nameField");
-var lost = document.getElementById("lost");
-var username = document.getElementById("username");
-var email = document.getElementById("email");
-var password = document.getElementById("password1");
-var passwordConfirm = document.getElementById("password2");
-var confirmpass = document.getElementById("confirmpass");
+let signupBtn = document.getElementById("signupBtn");
+let signinBtn = document.getElementById("signinBtn");
+let title = document.getElementById("title");
+let nameField = document.getElementById("nameField");
+let lost = document.getElementById("lost");
+let username = document.getElementById("username");
+let email = document.getElementById("email");
+let password = document.getElementById("password1");
+let passwordConfirm = document.getElementById("password2");
+let confirmpass = document.getElementById("confirmpass");
 signinBtn.addEventListener("click", function (e) {
   e.preventDefault();
   nameField.style.maxHeight = "0";

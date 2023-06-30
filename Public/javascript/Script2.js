@@ -55,6 +55,7 @@ let otherUserPub = "";
 $(".contact").click(async (e) => {
   chatId = e.target.id;
   otherUser = e.target.childNodes[3].childNodes[1].childNodes[1].innerText;
+  console.log(e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2])
   axios({
     method: "GET",
     url: `/api/v1/users/${otherUser}`,
@@ -86,13 +87,22 @@ $(".contact").click(async (e) => {
 
       if (!chat) {
         // Chat not found, create a new chat object
-        var OtherPublicKey = res.data.User[0].publicKey;
+        console.log(e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2])
+         let encShared={}
+         let shared = e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2].value
+         encShared.astr = shared.split("-")[0]
+         encShared.bstr = shared.split("-")[1]
+
         var transaction = db.transaction("keys", "readwrite");
         var store = transaction.objectStore("keys");
         var privReq = await store.get(currentId);
         privReq.onsuccess = async function (e) {
           let PrivKey = e.target.result.privateKey;
-          var sharedKey = generateSharedKey(OtherPublicKey, PrivKey);
+          let PubKey = e.target.result.publicKey;
+          console.log(PrivKey,chatId)
+          let sharedKey =  Elgamal.prototype.decryptGamal(encShared,PrivKey,PubKey);
+          console.log(sharedKey)
+
           await store.put({
             id: chatId,
             sharedKey,
@@ -574,6 +584,7 @@ $("#exit").click(function () {
 });
 
 var reqBod = document.getElementById("reqBod");
+let reqUserPub={};
 Reqs.addEventListener("click", (e) => {
   e.preventDefault();
   reqBod.innerHTML = "";
@@ -584,6 +595,7 @@ Reqs.addEventListener("click", (e) => {
     .then((res) => {
       console.log(res);
       for (var i = 0; i < res.data.requests.length; i++) {
+      reqUserPub[res.data.requests[i]._id] = res.data.requests[i].publicKey;
         reqBod.innerHTML += ` <tr>
       <td class="pt-3" >${res.data.requests[i].username}</td>
       <td class="action-request d-flex justify-content-center align-items-center">
@@ -596,6 +608,7 @@ Reqs.addEventListener("click", (e) => {
           </div>
       </td>
   </tr>`;
+
       }
       handleFriendReq();
     })
@@ -605,6 +618,7 @@ Reqs.addEventListener("click", (e) => {
 });
 
 //Handle firend request
+let sharedKey;
 function handleFriendReq() {
   resBtn = document.querySelectorAll(".accept, .reject");
   resBtn.forEach((btn) => {
@@ -616,15 +630,36 @@ function handleFriendReq() {
         ? (data.respond = true)
         : (data.respond = false);
       console.log(data);
+      if(data.respond==true) {
+        if(reqUserPub[e.target.id.split("-")[0]]){
+          sharedKey= generateSharedKey(reqUserPub[e.target.id.split("-")[0]]);
+          data.shared ={astr:sharedKey.shared.astr,bstr:sharedKey.shared.bstr}
+          console.log(data.shared.astr,data.shared.bstr);
+        }
 
+      }
       axios({
         method: "POST",
         url: "/api/v1/users/requests",
         data,
       })
-        .then((res) => {
+        .then(async (res) => {
           console.log(res);
           if (res.data.status == "Success") {
+            let request = indexedDB.open("User", 1);
+            request.onsuccess = async function (event) {
+              let db = event.target.result;
+
+              // Get a reference to the "users" store
+              let transaction = db.transaction("keys", "readwrite");
+              let store = transaction.objectStore("keys");
+              await store.put({
+                id: res.data.chat,
+                sharedKey:sharedKey.localShared,
+                localCount: 0,
+                remoteCount: 0,
+              })
+            }
             window.location.reload();
           }
         })

@@ -52,7 +52,8 @@ exports.getRequests = tryCatch(async (req, res) => {
 });
 
 exports.confirmReq = tryCatch(async (req, res) => {
-  const { respond, request } = req.body;
+  const { respond, request ,shared } = req.body;
+  console.log(req.body)
   if (!respond|| !request) return new AppError(400, "Invalid input");
 
   const user = await Users.findById(req.user._id);
@@ -60,17 +61,18 @@ exports.confirmReq = tryCatch(async (req, res) => {
 
   console.log(reqUser);
   if (!reqUser) return new AppError(400, "No user with this info");
-
+  let newChat;
   if (respond == true) {
     user.friends.push(reqUser._id);
     reqUser.friends.push(user._id);
     reqUser.save();
-    await Chats.create({users:[user._id,reqUser._id]})
+
+    newChat =await Chats.create({users:[user._id,reqUser._id],shared:`${shared.astr}-${shared.bstr}`})
     console.log('Created')
   }
   user.requests.pull(reqUser._id)
   user.save();
   console.log(user.requests)
 
-  res.status(200).json({ status: "Success", message: "Changes Saved" });
+  res.status(200).json({ status: "Success", message: "Changes Saved",chat:newChat._id });
 });
