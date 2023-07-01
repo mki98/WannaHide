@@ -49,7 +49,11 @@ const UserSchema = new mongoose.Schema(
       },
     ],
     publicKey: { type: String },
-    status: { type: String, enum: ["online", "offline","away"], default: "offline" },
+    status: {
+      type: String,
+      enum: ["online", "offline", "away"],
+      default: "offline",
+    },
   },
   { strict: false }
 );

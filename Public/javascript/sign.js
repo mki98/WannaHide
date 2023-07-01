@@ -52,9 +52,8 @@ signupBtn.addEventListener("click", async function (e) {
   signupBtn.classList.remove("disable");
   signinBtn.classList.add("disable");
   lost.innerHTML = ``;
-  console.log(username, email, password, passwordConfirm);
   if (username.value && email.value && password.value && passwordConfirm) {
-    let user = new KeyPairs()
+    let user = new KeyPairs();
     axios({
       method: "POST",
       url: "http://localhost:5000/api/v1/users/signup",
@@ -67,14 +66,20 @@ signupBtn.addEventListener("click", async function (e) {
       },
     })
       .then(async (res) => {
-        console.log(res)
         if (res.data.status == "Success") {
-          console.log(user.publicKey);
           try {
-             const db = await openDatabase("User",1,[{name:"keys",keyPath:"id"}])
-            await storeKeys(db,res.data.user._id,user.publicKey.toString(),user.privateKey.toString())
-            console.log('finish store in indexed')
-          }catch(e){console.log(e.message)}
+            const db = await openDatabase("User", 1, [
+              { name: "keys", keyPath: "id" },
+            ]);
+            await storeKeys(
+              db,
+              res.data.user._id,
+              user.publicKey.toString(),
+              user.privateKey.toString()
+            );
+          } catch (e) {
+            console.log(e.message);
+          }
           showAlert("success", res.data.message);
         }
       })

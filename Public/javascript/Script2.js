@@ -8,7 +8,7 @@ let time;
 let Reqs = document.getElementById("btn-request");
 const contacts = document.getElementsByName("contacts");
 
-import { openDatabase} from "./indexDB.js";
+import { openDatabase } from "./indexDB.js";
 import { generateSharedKey, Elgamal } from "./keyGen.js";
 var resBtn;
 
@@ -55,14 +55,14 @@ let otherUserPub = "";
 $(".contact").click(async (e) => {
   chatId = e.target.id;
   otherUser = e.target.childNodes[3].childNodes[1].childNodes[1].innerText;
-  console.log(e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2])
+  console.log(e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2]);
   axios({
     method: "GET",
     url: `/api/v1/users/${otherUser}`,
   }).then(async (res) => {
     otherUserPub = res.data.User[0].publicKey;
   });
-  
+
   var request = indexedDB.open("User", 1);
 
   request.onupgradeneeded = function (event) {
@@ -87,11 +87,15 @@ $(".contact").click(async (e) => {
 
       if (!chat) {
         // Chat not found, create a new chat object
-        console.log(e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2])
-         let encShared={}
-         let shared = e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2].value
-         encShared.astr = shared.split("-")[0]
-         encShared.bstr = shared.split("-")[1]
+        console.log(
+          e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2]
+        );
+        let encShared = {};
+        let shared =
+          e.target.childNodes[3].childNodes[1].childNodes[3].attributes[2]
+            .value;
+        encShared.astr = shared.split("-")[0];
+        encShared.bstr = shared.split("-")[1];
 
         var transaction = db.transaction("keys", "readwrite");
         var store = transaction.objectStore("keys");
@@ -99,9 +103,13 @@ $(".contact").click(async (e) => {
         privReq.onsuccess = async function (e) {
           let PrivKey = e.target.result.privateKey;
           let PubKey = e.target.result.publicKey;
-          console.log(PrivKey,chatId)
-          let sharedKey =  Elgamal.prototype.decryptGamal(encShared,PrivKey,PubKey);
-          console.log(sharedKey)
+          console.log(PrivKey, chatId);
+          let sharedKey = Elgamal.prototype.decryptGamal(
+            encShared,
+            PrivKey,
+            PubKey
+          );
+          console.log(sharedKey);
 
           await store.put({
             id: chatId,
@@ -145,14 +153,10 @@ $(".contact").click(async (e) => {
 
   // Open the "chats" database with a version number of 2
   let Chatsdb = indexedDB.open("Chats", 2);
-  //! Add query messages enc from db to keep it up to date with local
-  //! after finsih append it to the local storage
-  //! then delete it from db by calling retrevied
-  //! *TRY TO CREATE A TRANSACTION THAT ONLY CHANGES THE COUNTER WHEN THINGS ARE DONE*
   Chatsdb.onupgradeneeded = function (event) {
     let db = event.target.result;
     let store;
-    // Create a "messages" store with an autoincremented keypath
+    // Create a "messages" store with an autoincrement keypath
     if (!db.objectStoreNames.contains("messages")) {
       store = db.createObjectStore("messages", {
         keypath: "id",
@@ -179,19 +183,37 @@ $(".contact").click(async (e) => {
     query.onsuccess = (event) => {
       const cursor = event.target.result;
       if (cursor) {
-        msgs += `<div class="massage ${
-          cursor.value.senderId == currentId ? "myMassage" : "friendMassage"
-        }">
-         <p> ${
-          cursor.value.content
-        }<br> <span>${new Date(
-          Date.parse(cursor.value?.time) ///1234    890
-        ).toLocaleString("en-EG", {
-          hour12: true,
-          hour: "numeric",
-          minute: "2-digit",
-        })}</span></p>
+        if (cursor.value.content.startsWith("data:image")) {
+          msgs += `<div class="massage ${
+            cursor.value.senderId == currentId ? "myMassage" : "friendMassage"
+          }">
+                                       
+            <p>
+             <img src="${cursor.value.content}" alt="">
+            <br> 
+             <span>${new Date(Date.parse(cursor.value?.time)).toLocaleString(
+               "en-EG",
+               {
+                 hour12: true,
+                 hour: "numeric",
+                 minute: "2-digit",
+               }
+             )}</span>
+              </p>
+                 </div>`;
+        } else {
+          msgs += `<div class="massage ${
+            cursor.value.senderId == currentId ? "myMassage" : "friendMassage"
+          }">
+         <p> ${cursor.value.content}<br> <span>${new Date(
+            Date.parse(cursor.value?.time)
+          ).toLocaleString("en-EG", {
+            hour12: true,
+            hour: "numeric",
+            minute: "2-digit",
+          })}</span></p>
                                      </div>`;
+        }
         cursor.continue();
       }
       transaction.oncomplete = function (event) {
@@ -200,7 +222,7 @@ $(".contact").click(async (e) => {
         if (unreadMsgs.length > 0) {
           unreadMsgs.forEach((msger) => {
             if (msger.sender._id != currentId) {
-              ReciverMessage(msger.content, chatId, msger.sender._id);
+              ReceiverMessage(msger.content, chatId, msger.sender._id);
               good = 1;
             }
           });
@@ -228,29 +250,61 @@ socket.on("displayImg", (url, chatId, senderId) => {
     return;
   }
   console.log("in blob");
-  // Create an image element and set its source to the URL
   const img = new Image();
-  let rat = deriveKey(1, 1);
-  console.log(url.astr);
-  let urla = new BigInteger(url.astr);
-  let urlb = new BigInteger(url.bstr);
-  let pubstr = new BigInteger(url.pubstr);
-  let privstr = new BigInteger(url.privstr);
-  url = { a: urla, b: urlb };
-  img.src = Elgamal.prototype.decryptGamal(url, privstr, pubstr);
-  console.log(img);
+  // Create an image element and set its source to the URL
+  let remoteCount;
+  let sharedKey;
+  console.log("reciver");
+  let request = indexedDB.open("User", 1);
+  request.onsuccess = async function (e) {
+    let db = e.target.result;
+    let store = await db.transaction("keys", "readwrite").objectStore("keys");
+    let req = await store.get(chatId);
+    req.onsuccess = async function (e) {
+      remoteCount = e.target.result.remoteCount;
+      sharedKey = e.target.result.sharedKey;
+      //modified by 1
+      let ratchetKey = deriveKey(sharedKey, remoteCount);
+      console.log(url);
+      img.src = decrypt(url.toString(), ratchetKey);
 
-  // Add the image element to the DOM
-  // document.body.appendChild(img);
-  chatBox.innerHTML += `<div class="massage friendMassage">
+      console.log(decrypt(url, ratchetKey));
+      chatBox.innerHTML += `<div class="massage friendMassage">
                                        
     <p>
        <img src="${img.src}" alt="">
        <br> 
-       <span>08:55</span>
+       <span>${new Date(Date.now()).toLocaleString("en-EG", {
+         hour12: true,
+         hour: "numeric",
+         minute: "2-digit",
+       })}</span>
     </p>
     </div>`;
+
+      //get chat and update remote count value
+      await increaseRemote(chatId);
+      storeMessageInLocDB(img.src, chatId, senderId);
+    };
+  };
 });
+
+async function increaseLocalCount(db, chatId) {
+  let addLoc = await db.transaction("keys", "readwrite").objectStore("keys");
+  let addReq = await addLoc.get(chatId);
+  addReq.onsuccess = function (e) {
+    //!localCount
+    let data = e.target.result;
+    data.localCount = data.localCount + 1;
+    let updateLoc = addLoc.put(data);
+    updateLoc.onsuccess = function (e) {
+      console.log(e);
+    };
+  };
+  addReq.onerror = function (e) {
+    console.log(e.target.error);
+  };
+}
 
 if (formMessage) {
   formMessage.addEventListener("submit", async (e) => {
@@ -261,29 +315,47 @@ if (formMessage) {
       console.log(imgContent);
       var reader = new FileReader();
       // reader.readAsBinaryString(imgContent);
-      reader.readAsArrayBuffer(imgContent); //base64
+      // reader.readAsArrayBuffer(imgContent); //base64
+      reader.readAsDataURL(imgContent);
       reader.onload = function (e) {
         let imgStr = e.target.result;
-        console.log(imgStr);
-        let rat = deriveKey(1, 1);
-        let enco = encrypt(imgStr, rat);
-        console.log(enco);
-        chatBox.innerHTML += `<div class="massage myMassage">
+        var request = indexedDB.open("User", 1);
+        request.onsuccess = async function (e) {
+          let db = e.target.result;
+          let store = await db
+            .transaction("keys", "readwrite")
+            .objectStore("keys");
+          let req = await store.get(chatId);
+          req.onsuccess = async function (e) {
+            //sender
+            //encrypt message
+            let localCount = e.target.result.localCount;
+            let sharedKey = e.target.result.sharedKey;
+            //modified by 1
+            let ratchetKey = deriveKey(sharedKey, localCount);
+            console.log("ratchetKey->", ratchetKey);
+            console.log(imgStr);
+            let enco = encrypt(imgStr, ratchetKey);
+            console.log(imgStr);
+            console.log(enco);
+
+            chatBox.innerHTML += `<div class="massage myMassage">
                                        
     <p>
        <img src="${imgStr}" alt="">
        <br> 
-       <span>${new Date(Date.now()).toLocaleString(
-            "en-EG",
-            {
-              hour12: true,
-              hour: "numeric",
-              minute: "2-digit",
-            }
-        )}</span>
+       <span>${new Date(Date.now()).toLocaleString("en-EG", {
+         hour12: true,
+         hour: "numeric",
+         minute: "2-digit",
+       })}</span>
     </p>
     </div>`;
-        socket.emit("upload", enco, chatId, currentId);
+            socket.emit("upload", enco, chatId, currentId);
+            await increaseLocalCount(db, chatId);
+            storeMessageInLocDB(imgStr, currentId, chatId);
+          };
+        };
       };
     }
     let content = e.target[1].value;
@@ -303,8 +375,8 @@ if (formMessage) {
           //modified by 1
           let ratchetKey = deriveKey(sharedKey, localCount);
           console.log("ratchetKey->", ratchetKey);
-          // let encMess = encrypt(content, ratchetKey);
-          let encMess = Elgamal.prototype.encryptGamal(content,new BigInteger(otherUserPub));
+          let encMess = encrypt(content, ratchetKey);
+          // let encMess = Elgamal.prototype.encryptGamal(content,new BigInteger(otherUserPub));
           console.log("encMess->", encMess);
           //send Encrypted message to other user
           socket.emit("chat msg", encMess, chatId, currentId);
@@ -330,22 +402,7 @@ if (formMessage) {
             hour: "numeric",
             minute: "2-digit",
           })}`;
-          let addLoc = await db
-            .transaction("keys", "readwrite")
-            .objectStore("keys");
-          let addReq = await addLoc.get(chatId);
-          addReq.onsuccess = function (e) {
-            //!localCount
-            let data = e.target.result;
-            data.localCount = data.localCount + 1;
-            let updateLoc = addLoc.put(data);
-            updateLoc.onsuccess = function (e) {
-              console.log(e);
-            };
-          };
-          addReq.onerror = function (e) {
-            console.log(e.target.error);
-          };
+          await increaseLocalCount(db, chatId);
           // Open the "chats" database with a version number of 2
           var request = indexedDB.open("Chats", 2);
 
@@ -389,14 +446,11 @@ if (formMessage) {
     }
   });
 }
-let myPubKey="";
-let myPrivKey="";
-
 async function increaseRemote(chatID) {
   let keysdb = await openDatabase("User", 1);
   let keysObj = await keysdb
-      .transaction("keys", "readwrite")
-      .objectStore("keys");
+    .transaction("keys", "readwrite")
+    .objectStore("keys");
   let keysReq = await keysObj.get(chatID);
   keysReq.onsuccess = async function (e) {
     //!remoteCount
@@ -411,7 +465,7 @@ async function increaseRemote(chatID) {
 
 function htmlMessage(senderId, msg) {
   return ` <div class="massage ${
-      senderId == currentId ? "myMassage" : "friendMassage"
+    senderId == currentId ? "myMassage" : "friendMassage"
   } ">
   <p> ${msg}<br> <span>${new Date(Date.now()).toLocaleString("en-EG", {
     hour12: true,
@@ -431,23 +485,20 @@ function displayMessage(msgHtml, msg, senderId, chatID) {
     minute: "2-digit",
   })}`;
   // Open the "chats" database with a version number of 2
-  storeMessageInLocDB(msg, senderId, chatID)
+  storeMessageInLocDB(msg, senderId, chatID);
 }
 
 socket.on("chatMsg", async (enc, chatID, senderId) => {
   console.log("I AM FIRED");
   //decrypt the message
   if (senderId !== currentId) {
-    // alert(`u r ${currentId},other person ${senderId }`)
     //when not joined
-    ReciverMessage(enc,chatID,senderId)
-
+    await ReceiverMessage(enc, chatID, senderId);
   }
 });
 let messageCount = 0;
 socket.on("awayMsg", async (enc, currentId, senderId, chatID) => {
   alert(`U have a new message`);
-  console.log(contacts);
 
   let chat;
   for (var i = 0; i < contacts.length; i++) {
@@ -463,7 +514,7 @@ socket.on("awayMsg", async (enc, currentId, senderId, chatID) => {
   let remoteCount;
   let sharedKey;
   console.log("reciver");
-  var request = indexedDB.open("User", 1);
+  let request = indexedDB.open("User", 1);
   request.onsuccess = async function (e) {
     let db = e.target.result;
     let store = await db.transaction("keys", "readwrite").objectStore("keys");
@@ -474,12 +525,15 @@ socket.on("awayMsg", async (enc, currentId, senderId, chatID) => {
       //modified by 1
       let ratchetKey = deriveKey(sharedKey, remoteCount);
       let msg = decrypt(enc, ratchetKey);
-
-      console.log(decrypt(enc, ratchetKey));
+      if (msg.startsWith("data:image")) {
+        chat.childNodes[3].childNodes[3].innerText = "Image";
+      } else {
+        chat.childNodes[3].childNodes[3].innerText = msg;
+      }
+      console.log(msg);
+      messageCount++;
       //!change the order and make it at the top of chats
       //!add unread icon to it
-      chat.childNodes[3].childNodes[3].innerText = msg;
-      messageCount++;
       if (!chat.childNodes[5]) {
         let b = document.createElement("b");
         b.classList.add("text-light", "bg-success");
@@ -489,11 +543,9 @@ socket.on("awayMsg", async (enc, currentId, senderId, chatID) => {
 
       // b.innerText = messageCount
       document.getElementById("chatList").prepend(chat);
-
-      console.log("jdijdijijijij", msg, chatID, senderId);
       //get chat and update remote count value
       await increaseRemote(chatID);
-      storeMessageInLocDB(msg, chatID, senderId);
+      storeMessageInLocDB(msg, senderId, chatID);
     };
   };
 });
@@ -527,10 +579,8 @@ $("#addClick").click(function () {
           if (res.status == 200) {
             setTimeout(() => {
               if (userStatus.classList.contains("green")) {
-                console.log(" green");
                 userStatus.innerHTML = `${res.data.message}`;
               } else {
-                console.log("else green");
                 userStatus.classList.replace("red", "green");
                 userStatus.innerHTML = `${res.data.message}`;
               }
@@ -544,10 +594,8 @@ $("#addClick").click(function () {
           console.log(err);
           setTimeout(() => {
             if (userStatus.classList.contains("red")) {
-              console.log("red");
               userStatus.innerHTML = `${err.response.data.message}`;
             } else {
-              console.log("else red");
               userStatus.classList.replace("green", "red");
               userStatus.innerHTML = `${err.response.data.message}`;
             }
@@ -584,7 +632,7 @@ $("#exit").click(function () {
 });
 
 var reqBod = document.getElementById("reqBod");
-let reqUserPub={};
+let reqUserPub = {};
 Reqs.addEventListener("click", (e) => {
   e.preventDefault();
   reqBod.innerHTML = "";
@@ -595,7 +643,7 @@ Reqs.addEventListener("click", (e) => {
     .then((res) => {
       console.log(res);
       for (var i = 0; i < res.data.requests.length; i++) {
-      reqUserPub[res.data.requests[i]._id] = res.data.requests[i].publicKey;
+        reqUserPub[res.data.requests[i]._id] = res.data.requests[i].publicKey;
         reqBod.innerHTML += ` <tr>
       <td class="pt-3" >${res.data.requests[i].username}</td>
       <td class="action-request d-flex justify-content-center align-items-center">
@@ -608,7 +656,6 @@ Reqs.addEventListener("click", (e) => {
           </div>
       </td>
   </tr>`;
-
       }
       handleFriendReq();
     })
@@ -630,13 +677,15 @@ function handleFriendReq() {
         ? (data.respond = true)
         : (data.respond = false);
       console.log(data);
-      if(data.respond==true) {
-        if(reqUserPub[e.target.id.split("-")[0]]){
-          sharedKey= generateSharedKey(reqUserPub[e.target.id.split("-")[0]]);
-          data.shared ={astr:sharedKey.shared.astr,bstr:sharedKey.shared.bstr}
-          console.log(data.shared.astr,data.shared.bstr);
+      if (data.respond == true) {
+        if (reqUserPub[e.target.id.split("-")[0]]) {
+          sharedKey = generateSharedKey(reqUserPub[e.target.id.split("-")[0]]);
+          data.shared = {
+            astr: sharedKey.shared.astr,
+            bstr: sharedKey.shared.bstr,
+          };
+          console.log(data.shared.astr, data.shared.bstr);
         }
-
       }
       axios({
         method: "POST",
@@ -655,11 +704,11 @@ function handleFriendReq() {
               let store = transaction.objectStore("keys");
               await store.put({
                 id: res.data.chat,
-                sharedKey:sharedKey.localShared,
+                sharedKey: sharedKey.localShared,
                 localCount: 0,
                 remoteCount: 0,
-              })
-            }
+              });
+            };
             window.location.reload();
           }
         })
@@ -672,25 +721,25 @@ function handleFriendReq() {
 }
 
 function storeMessageInLocDB(msg, senderId, chatID) {
-  var request = indexedDB.open("Chats", 2);
+  let request = indexedDB.open("Chats", 2);
 
   request.onupgradeneeded = function (event) {
-    var db = event.target.result;
+    let db = event.target.result;
 
     // Create a "messages" store with an autoincremented keypath
-    var store = db.createObjectStore("messages", {
+    let store = db.createObjectStore("messages", {
       keyPath: "id",
       autoIncrement: true,
     });
   };
 
   request.onsuccess = function (event) {
-    var db = event.target.result;
+    let db = event.target.result;
 
     // Add the new message to the "messages" store
-    var transaction = db.transaction("messages", "readwrite");
-    var store = transaction.objectStore("messages");
-    var message = {
+    let transaction = db.transaction("messages", "readwrite");
+    let store = transaction.objectStore("messages");
+    let message = {
       content: msg,
       senderId: senderId,
       chatId: chatID,
@@ -708,23 +757,14 @@ function storeMessageInLocDB(msg, senderId, chatID) {
   };
 }
 
-async function ReciverMessage(enc, chatID, senderId) {
-
+async function ReceiverMessage(enc, chatID, senderId) {
   let remoteCount;
   let sharedKey;
   var request = indexedDB.open("User", 1);
   request.onsuccess = async function (e) {
     let db = e.target.result;
     let store = await db.transaction("keys", "readwrite").objectStore("keys");
-    if(!myPubKey){
-      let reqPub= await store.get(currentId);
-      reqPub.onsuccess = async function (e) {
-        let data = e.target.result;
-        console.log(data.publicKey)
-        myPubKey=data.publicKey;
-        myPrivKey=data.privateKey;
-      }
-    }
+
     let req = await store.get(chatID);
     req.onsuccess = async function (e) {
       remoteCount = e.target.result.remoteCount;
@@ -732,8 +772,8 @@ async function ReciverMessage(enc, chatID, senderId) {
       sharedKey = e.target.result.sharedKey;
       //modified by 1
       let ratchetKey = deriveKey(sharedKey, remoteCount);
-      // let msg = decrypt(enc, ratchetKey);
-      let msg = Elgamal.prototype.decryptGamal(enc,new BigInteger(myPrivKey),new BigInteger(myPubKey));
+      let msg = decrypt(enc, ratchetKey);
+      // let msg = Elgamal.prototype.decryptGamal(enc,new BigInteger(myPrivKey),new BigInteger(myPubKey));
       console.log(enc);
       console.log(msg);
       //get chat and update remote count value
@@ -779,7 +819,7 @@ async function previewMsg(enc, chatID) {
   return data;
 }
 
-//endpoints for getting user friends info 
+//endpoints for getting user friends info
 let endpoints = [];
 contacts.forEach((contact) => {
   endpoints.push(`api/v1/messages/${contact.id}`);

@@ -9,13 +9,11 @@ exports.handelSockets = (server) => {
   const io = socketio(server);
 
   io.on("connection", async (socket) => {
-    
     const curntUserToken = socket.handshake.headers.cookie?.split("=")[1];
     const userobj = await authcontroller.checkToken(curntUserToken);
-   if(!userobj)
-   {
-     return socket.disconnect();
-   }
+    if (!userobj) {
+      return socket.disconnect();
+    }
     const userId = userobj.id;
     socket.join(userId);
     await User.findByIdAndUpdate(userId, { status: "online" });
@@ -57,8 +55,10 @@ exports.handelSockets = (server) => {
       console.log(socket.id);
       let roomUsersActive = io.sockets.adapter.rooms.get(chatId).size;
       console.log(io.sockets.adapter.rooms.get(chatId));
-     const {status} =  await User.findById(otherUser.toString()).select("status -_id");
-      console.log(status)
+      const { status } = await User.findById(otherUser.toString()).select(
+        "status -_id"
+      );
+      console.log(status);
       if (status == "online" && roomUsersActive == 1) {
         //other is offline
         console.log("other is away");
@@ -70,21 +70,24 @@ exports.handelSockets = (server) => {
           chatId
         );
       }
-      if(status =="offline" && roomUsersActive ==1){
-        console.log("user is offline")
-        const newMsg = await Messages.create({ sender: senderId, content: msg, chat: chatId });
-        console.log(newMsg,"Added to DB")
+      if (status == "offline" && roomUsersActive == 1) {
+        console.log("user is offline");
+        const newMsg = await Messages.create({
+          sender: senderId,
+          content: msg,
+          chat: chatId,
+        });
+        console.log(newMsg, "Added to DB");
       }
       console.log("message sent");
       io.in(chatId).emit("chatMsg", msg, chatId, senderId);
     });
-    socket.on("upload", (file,chatId,senderId) => {
-      console.log('in back',file)
-      io.in(chatId).emit("displayImg", file,chatId,senderId);
-    })
-    socket.on("retrived",async (chatID)=>{
-     const delQue=  await Messages.deleteMany({chat:chatID})
-    })
-
+    socket.on("upload", (file, chatId, senderId) => {
+      console.log("in back", file);
+      io.in(chatId).emit("displayImg", file, chatId, senderId);
+    });
+    socket.on("retrived", async (chatID) => {
+      const delQue = await Messages.deleteMany({ chat: chatID });
+    });
   });
 };

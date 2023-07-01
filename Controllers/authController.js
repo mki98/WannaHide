@@ -5,7 +5,6 @@ const crypto = require("crypto");
 const { sendMail } = require("../Utils/emailSender");
 const jwt = require("jsonwebtoken");
 
-
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: `${process.env.JWT_EXPIRES_IN}d`,
@@ -17,15 +16,14 @@ exports.checkToken = async (token) => {
     const valid = jwt.verify(token, process.env.JWT_SECRET);
     return valid;
   } catch (error) {
-    console.log(error)
-    return null
-    }
+    console.log(error);
+    return null;
+  }
 };
 const generateToken = () => {
   return crypto.randomBytes(20).toString("hex").slice(0, 15);
 };
 const sendVerfMail = async (...userdata) => {
-
   await sendMail(
     userdata[0],
     "Confirm your signup",
@@ -110,7 +108,8 @@ exports.signup = tryCatch(async (req, res) => {
   if (!obj.email || !obj.username || !obj.password || !obj.passwordConfirm) {
     throw new AppError(400, "Please enter all required fields");
   }
-  if(obj.password.length < 8)  throw new AppError(400, "Please enter minimum 8 characters password");
+  if (obj.password.length < 8)
+    throw new AppError(400, "Please enter minimum 8 characters password");
 
   if (obj.password != obj.passwordConfirm) {
     throw new AppError(400, "Password and Password Confirmation dosen't match");
@@ -131,7 +130,7 @@ exports.signup = tryCatch(async (req, res) => {
   const user = await Users.create(obj);
   res
     .status(201)
-    .json({ status: "Success", message: "Email sent to confirm signup" ,user});
+    .json({ status: "Success", message: "Email sent to confirm signup", user });
 });
 
 exports.confirmSignup = tryCatch(async (req, res) => {
@@ -145,7 +144,12 @@ exports.confirmSignup = tryCatch(async (req, res) => {
     { _id: user._id },
     { $unset: { verified: "", token: "" } }
   );
-  return res.status(200).json({status:'Success',message:"Confirmation Successfull You Can Login "});
+  return res
+    .status(200)
+    .json({
+      status: "Success",
+      message: "Confirmation Successfull You Can Login ",
+    });
 });
 
 exports.login = tryCatch(async (req, res) => {
@@ -156,11 +160,11 @@ exports.login = tryCatch(async (req, res) => {
     throw new AppError(400, "Please provide email and password!");
   }
   // 2) Check if user exists && password is correct
-  const user = await Users.findOne({ email:email }).select("+password");
+  const user = await Users.findOne({ email: email }).select("+password");
   if (!user) {
     throw new AppError(401, "Incorrect Email");
   }
-  if (!await user.validatePassword(user.password, password)) {
+  if (!(await user.validatePassword(user.password, password))) {
     throw new AppError(401, "Incorrect password");
   }
   const token = signToken(user._id);
@@ -168,12 +172,10 @@ exports.login = tryCatch(async (req, res) => {
   res.cookie("jwt", token, {
     httpOnly: true,
     expires: new Date(
-      Date.now()+ process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
-      ),
+      Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
   });
   res
     .status(200)
     .json({ status: "Success", token, message: "Login Successful!" });
 });
-
-

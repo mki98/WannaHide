@@ -5,7 +5,9 @@ exports.sendMessage = async (req, res) => {
   const { _id } = req.user;
   const { content, chat } = req.body;
   const newMsg = await Messages.create({ sender: _id, content, chat });
-  const latestMessage = await Chats.findByIdAndUpdate(chat,{latestMessage:content})
+  const latestMessage = await Chats.findByIdAndUpdate(chat, {
+    latestMessage: content,
+  });
   res.status(200).json({ newMsg });
 };
 
