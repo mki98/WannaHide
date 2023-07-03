@@ -27,7 +27,7 @@ const sendVerfMail = async (...userdata) => {
   await sendMail(
     userdata[0],
     "Confirm your signup",
-    `Welcome ${userdata[1]} to complete your signup please click on the following link http://localhost:5000/confirm/${userdata[2]}`
+    `Welcome ${userdata[1]} to complete your signup please click on the following link http://172.20.10.12:5000/confirm/${userdata[2]}`
   );
 };
 exports.protect = async (req, res, next) => {
@@ -144,15 +144,14 @@ exports.confirmSignup = tryCatch(async (req, res) => {
     { _id: user._id },
     { $unset: { verified: "", token: "" } }
   );
-  return res
-    .status(200)
-    .json({
-      status: "Success",
-      message: "Confirmation Successfull You Can Login ",
-    });
+  return res.status(200).json({
+    status: "Success",
+    message: "Confirmation Successfull You Can Login ",
+  });
 });
 
 exports.login = tryCatch(async (req, res) => {
+  console.log("hit");
   const { email, password } = req.body;
 
   // 1) Check if email and password exist

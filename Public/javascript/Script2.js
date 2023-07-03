@@ -284,7 +284,7 @@ socket.on("displayImg", (url, chatId, senderId) => {
 
       //get chat and update remote count value
       await increaseRemote(chatId);
-      storeMessageInLocDB(img.src, chatId, senderId);
+      storeMessageInLocDB(img.src, senderId, chatId);
     };
   };
 });

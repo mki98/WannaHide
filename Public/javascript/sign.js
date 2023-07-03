@@ -24,7 +24,7 @@ signinBtn.addEventListener("click", function (e) {
   if (email.value && password.value) {
     axios({
       method: "POST",
-      url: "http://localhost:5000/api/v1/users/login",
+      url: "http://172.20.10.12:5000/api/v1/users/login",
       data: {
         email: email.value,
         password: password.value,
@@ -56,7 +56,7 @@ signupBtn.addEventListener("click", async function (e) {
     let user = new KeyPairs();
     axios({
       method: "POST",
-      url: "http://localhost:5000/api/v1/users/signup",
+      url: "http://172.20.10.12:5000/api/v1/users/signup",
       data: {
         username: username.value,
         email: email.value,

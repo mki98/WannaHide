@@ -10,6 +10,7 @@ exports.logout = tryCatch((req, res) => {
   return res.redirect("/accounts");
 });
 exports.index = tryCatch((req, res) => {
+  console.log("hit");
   res.render("index");
 });
 
@@ -31,7 +32,7 @@ exports.ConfirmSingup = tryCatch(async (req, res) => {
   const { token } = req.params;
   axios({
     method: "GET",
-    url: `http://localhost:5000/api/v1/users/confirm/${token}`,
+    url: `http://172.20.10.12:5000/api/v1/users/confirm/${token}`,
   })
     .then((result) => {
       console.log(result.data);
