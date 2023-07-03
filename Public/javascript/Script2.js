@@ -354,6 +354,7 @@ if (formMessage) {
             socket.emit("upload", enco, chatId, currentId);
             await increaseLocalCount(db, chatId);
             storeMessageInLocDB(imgStr, currentId, chatId);
+            formMessage.reset();
           };
         };
       };
@@ -432,6 +433,7 @@ if (formMessage) {
 
             transaction.oncomplete = function (event) {
               console.log("Message added to database:", message);
+              formMessage.reset();
             };
           };
 
