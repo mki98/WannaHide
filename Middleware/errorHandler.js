@@ -9,7 +9,7 @@ exports.errorHandler = (error, req, res, next) => {
       message: error.message,
     });
   }
-  //Not handled errors
+  //None handled errors
   return res
     .status(500)
     .json({
